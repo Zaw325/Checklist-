@@ -4,10 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chemical Checklist (Pro Version 2.0)</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-
 <style>
     /* Import Google Font 'Inter' */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
@@ -33,10 +29,9 @@
         text-align: center;
         color: #2a4d69;
         font-weight: 600;
-        margin-bottom: 5px; /* Reduced margin */
+        margin-bottom: 5px;
     }
 
-    /* NEW: Style for the date */
     #checklist-date {
         text-align: center;
         font-size: 16px;
@@ -121,12 +116,7 @@
         transform: translateY(-2px);
     }
 
-    button.pdf-btn {
-        background-color: #006400;
-    }
-    button.pdf-btn:hover {
-        background-color: #004d00;
-    }
+    /* PDF button style များကို ဖြုတ်လိုက်ပါပြီ */
 
     button.print-btn {
         background-color: #6c757d;
@@ -135,9 +125,8 @@
         background-color: #5a6268;
     }
 
-    /* NEW: Style for the delete button in the row */
     .delete-btn {
-        background-color: #dc3545; /* Red */
+        background-color: #dc3545;
         color: white;
         border: none;
         padding: 6px 12px;
@@ -150,9 +139,8 @@
         background-color: #c82333;
     }
 
-    /* NEW: Hide elements from Print & PDF */
     .no-print {
-        display: table-cell; /* Show normally */
+        display: table-cell;
     }
 
     @media print {
@@ -168,7 +156,7 @@
             max-width: 100%;
         }
         .btn-area, .no-print {
-            display: none !important; /* Hide buttons AND action column on print */
+            display: none !important;
         }
     }
 </style>
@@ -195,23 +183,18 @@
 
     <div class="btn-area">
         <button onclick="addRow()">+ Add Row</button>
-        <button onclick="exportPDF()" class="pdf-btn">📄 Export to PDF</button>
         <button onclick="window.print()" class="print-btn">🖨️ Print</button>
     </div>
 </div>
 
 <script>
-    // Initialize jsPDF library
-    const { jsPDF } = window.jspdf;
     const STORAGE_KEY = 'chemicalChecklistData'; // Key for localStorage
 
-    // Load data and set date when the page is first loaded
     document.addEventListener('DOMContentLoaded', () => {
         loadData();
         setDate();
     });
 
-    // NEW: Function to set the current date
     function setDate() {
         const dateEl = document.getElementById('checklist-date');
         const today = new Date();
@@ -219,12 +202,11 @@
         dateEl.textContent = 'Date: ' + today.toLocaleDateString('en-US', options);
     }
 
-    // Load data from localStorage
     function loadData() {
         const tableBody = document.getElementById("checklistTable").getElementsByTagName('tbody')[0];
         const dataString = localStorage.getItem(STORAGE_KEY);
         
-        tableBody.innerHTML = ''; // Clear the table first
+        tableBody.innerHTML = '';
 
         if (dataString) {
             const data = JSON.parse(dataString);
@@ -240,7 +222,6 @@
         }
     }
 
-    // Save data to localStorage (Auto-save)
     function saveData() {
         const tableBody = document.getElementById("checklistTable").getElementsByTagName('tbody')[0];
         const data = [];
@@ -252,14 +233,12 @@
                 needed: row.cells[2].querySelector('input').value,
                 remark: row.cells[3].querySelector('textarea').value
             };
-            // Note: We don't save the 5th column (delete button)
             data.push(rowData);
         }
         
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
-    // Create a new row and populate it with data
     function createRow(rowData) {
         const tableBody = document.getElementById("checklistTable").getElementsByTagName('tbody')[0];
         const newRow = tableBody.insertRow();
@@ -268,80 +247,35 @@
         const cellCurrent = newRow.insertCell(1);
         const cellNeeded = newRow.insertCell(2);
         const cellRemark = newRow.insertCell(3);
-        const cellAction = newRow.insertCell(4); // NEW: Action cell
+        const cellAction = newRow.insertCell(4);
 
-        // Populate cells
         cellItem.innerHTML = `<input type="text" placeholder="e.g. Bleach" value="${rowData.item || ''}">`;
         cellCurrent.innerHTML = `<input type="text" placeholder="e.g. 2 bottles" value="${rowData.current || ''}">`;
         cellNeeded.innerHTML = `<input type="text" placeholder="e.g. 3 more" value="${rowData.needed || ''}">`;
         cellRemark.innerHTML = `<textarea placeholder="Note...">${rowData.remark || ''}</textarea>`;
         
-        // NEW: Add delete button
-        cellAction.classList.add('no-print'); // Add class to hide from print
+        cellAction.classList.add('no-print');
         cellAction.innerHTML = `<button class="delete-btn" onclick="deleteRow(this)">Delete</button>`;
 
-        // Attach the auto-save function to every input/textarea
         newRow.querySelectorAll('input, textarea').forEach(input => {
             input.addEventListener('input', saveData);
         });
     }
 
-    // Add a new row (when button is clicked)
     function addRow() {
         createRow({}); 
     }
 
-    // NEW: Function to delete a row
     function deleteRow(button) {
-        const row = button.parentElement.parentElement; // Get the <tr>
-        // Add a confirmation pop-up
+        const row = button.parentElement.parentElement;
         if (confirm('Are you sure you want to delete this row?')) {
             row.parentElement.removeChild(row);
-            saveData(); // Save the change
+            saveData();
         }
     }
 
-    // PDF Export Function
-    function exportPDF() {
-        if (typeof jsPDF === 'undefined' || typeof jsPDF.autoTable === 'undefined') {
-            alert('Error: PDF libraries could not be loaded. Please check your internet connection and try again.');
-            return;
-        }
+    // PDF Export Function ကို ဖြုတ်လိုက်ပါပြီ
 
-        const doc = new jsPDF();
-
-        // Add Title and Date
-        doc.text("Chemical Checklist", 14, 16);
-        doc.setFontSize(12);
-        doc.setTextColor(100); // Gray color
-        doc.text(document.getElementById('checklist-date').textContent, 14, 22);
-
-        doc.autoTable({
-            html: '#checklistTable',
-            startY: 28, // Start table after the date
-            theme: 'grid',
-            headStyles: {
-                fillColor: [75, 134, 180]
-            },
-            // NEW: This function skips drawing the 5th column (index 4)
-            willDrawCell: function (data) {
-                if (data.column.index === 4) { // 4 is the 5th column (Actions)
-                    return false; // Don't draw this cell
-                }
-            },
-            // Correctly read values from input/textarea fields
-            didParseCell: function (data) {
-                if (data.cell.section === 'body' && data.column.index <= 3) {
-                    const input = data.cell.raw.querySelector('input, textarea');
-                    if (input) {
-                        data.cell.text = input.value;
-                    }
-                }
-            }
-        });
-
-        doc.save('Chemical_Checklist.pdf');
-    }
 </script>
 
 </body>
