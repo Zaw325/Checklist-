@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chemical Checklist</title>
     <style>
-        /* --- အထွေထွေ ပုံစံ --- */
+        /* --- General Styles --- */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -23,19 +23,19 @@
             border: 1px solid #ddd;
         }
 
-        /* --- ခေါင်းစဉ်များ --- */
+        /* --- Headings --- */
         h1 {
             text-align: center;
-            color: #C82333; /* အနီရင့်ရောင် */
+            color: #C82333; /* Dark Red */
             margin-top: 10px;
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 15px;
         }
         
-        /* --- ကုမ္ပဏီနာမည် (ထပ်ထည့်ထား) --- */
+        /* --- Company Name (Added) --- */
         h2 {
             text-align: center;
-            color: #555; /* မီးခိုးရောင် */
+            color: #555; /* Gray */
             margin: 0;
             padding: 0;
         }
@@ -48,7 +48,7 @@
             margin-top: -10px;
         }
 
-        /* --- ဇယား (Table) --- */
+        /* --- Table --- */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -69,12 +69,12 @@
         }
 
         tr:nth-child(even) {
-            background-color: #f9f9f9; /* ဇယားကွက်များ ပိုရှင်းအောင် */
+            background-color: #f9f9f9; /* For clearer rows */
         }
         
-        /* ပစ္စည်းပြတ်နေသော အတန်း (JS မှ ထိန်းချုပ်ရန်) */
+        /* Row for out-of-stock items (controlled by JS) */
         .row-out-of-stock {
-            background-color: #fff0f0; /* ပန်းရောင်ဖျော့ */
+            background-color: #fff0f0; /* Light Pink */
             font-weight: bold;
         }
         .row-out-of-stock td:first-child::before {
@@ -83,7 +83,7 @@
         }
 
 
-        /* --- ခလုတ်များ --- */
+        /* --- Buttons --- */
         .btn-area {
             text-align: center;
             margin-top: 30px;
@@ -106,14 +106,14 @@
         }
         
         button.print-btn {
-            background-color: #28a745; /* အစိမ်းရောင် */
+            background-color: #28a745; /* Green */
         }
         button.print-btn:hover {
             background-color: #218838;
         }
 
         button.delete-btn {
-            background-color: #dc3545; /* အနီရောင် */
+            background-color: #dc3545; /* Red */
             font-size: 14px;
             padding: 8px 12px;
         }
@@ -122,7 +122,7 @@
         }
 
 
-        /* --- Print ထုတ်လျှင် ဖျောက်ထား/ပေါ်စေမည့် အရာများ --- */
+        /* --- Print Styles --- */
         @media print {
             body {
                 background-color: #fff;
@@ -137,17 +137,17 @@
                 max-width: 100%;
             }
 
-            /* Print ထုတ်လျှင် ခလုတ်များ၊ Action Column များ ဖျောက်ထားရန် */
+            /* Hide buttons and action columns when printing */
             .btn-area, .no-print {
                 display: none;
             }
             
-            /* Print ထုတ်လျှင် ပစ္စည်းပြတ်နေသော အတန်းကို ပုံမှန်အတိုင်းပြရန် */
+            /* Show out-of-stock rows normally on print */
             .row-out-of-stock {
                  background-color: #ffffff;
             }
             .row-out-of-stock td:first-child::before {
-                 content: ''; /* Warning icon ကို ဖျောက်ရန် */
+                 content: ''; /* Hide warning icon */
             }
         }
     </style>
@@ -183,7 +183,7 @@
     </div>
 
     <script>
-        // --- ယနေ့ ရက်စွဲထည့်ရန် ---
+        // --- Set Today's Date ---
         function setDate() {
             const dateElement = document.getElementById('checklist-date');
             const today = new Date();
@@ -191,7 +191,7 @@
             dateElement.textContent = today.toLocaleDateString('en-US', options);
         }
 
-        // --- ပစ္စည်းအသစ် ထည့်ရန် ---
+        // --- Add New Item ---
         function addItem() {
             const tableBody = document.getElementById('checklistTable').getElementsByTagName('tbody')[0];
             const newRow = tableBody.insertRow();
@@ -206,10 +206,10 @@
                     <button class="delete-btn" onclick="deleteRow(this)">Delete</button>
                 </td>
             `;
-            checkStock(newRow.cells[1]); // ထည့်ထည့်ချင်း stock စစ်ရန်
+            checkStock(newRow.cells[1]); // Check stock right after adding
         }
 
-        // --- Stock အရေအတွက် စစ်ဆေးရန် ---
+        // --- Check Stock Quantity ---
         function checkStock(cell) {
             const stockValue = parseInt(cell.textContent, 10);
             const row = cell.parentElement;
@@ -221,7 +221,7 @@
             }
         }
 
-        // --- အတန်း (Row) ကို ဖြုတ်ရန် ---
+        // --- Delete Row ---
         function deleteRow(btn) {
             if (confirm('Are you sure you want to delete this item?')) {
                 const row = btn.parentNode.parentNode;
@@ -229,34 +229,10 @@
             }
         }
 
-        // --- စာမျက်နှာ စဖွင့်လျှင် လုပ်ဆောင်ရန် ---
+        // --- Run on Page Load ---
         document.addEventListener('DOMContentLoaded', function() {
             setDate();
             
-            // နမူနာ ပစ္စည်းများ
+            // Example Items
             const initialItems = [
-                { name: "Glass Cleaner", current: 5, needed: 5, remark: "Windex Brand" },
-                { name: "Floor Detergent", current: 0, needed: 10, remark: "Pine-Sol" },
-                { name: "Microfiber Cloths", current: 50, needed: 0, remark: "" }
-            ];
-
-            const tableBody = document.getElementById('checklistTable').getElementsByTagName('tbody')[0];
-            initialItems.forEach(item => {
-                const newRow = tableBody.insertRow();
-                newRow.className = "checklist-item";
-                newRow.innerHTML = `
-                    <td contenteditable="true">${item.name}</td>
-                    <td contenteditable="true" oninput="checkStock(this)">${item.current}</td>
-                    <td contenteditable="true">${item.needed}</td>
-                    <td contenteditable="true">${item.remark}</td>
-                    <td class="no-print">
-                        <button class="delete-btn" onclick="deleteRow(this)">Delete</button>
-                    </td>
-                `;
-                checkStock(newRow.cells[1]); // stock စစ်ရန်
-            });
-        });
-    </script>
-
-</body>
-</html>
+                { name: "Glass Cleaner", current: 5,
