@@ -1,4 +1,4 @@
-alttDOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -26,11 +26,11 @@ alttDOCTYPE html>
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
-    /* === NEW: Logo Style === */
+    /* Logo Style */
     .logo-img {
         display: block;
-        max-width: 150px; /* Set your logo's max width */
-        margin: 0 auto 15px auto; /* Center the logo */
+        max-width: 150px; 
+        margin: 0 auto 15px auto; 
     }
 
     h1 {
@@ -78,14 +78,13 @@ alttDOCTYPE html>
         background-color: #f1f7ff;
     }
 
-    /* === NEW: Low Stock Row Style === */
+    /* Low Stock Row Style */
     tr.row-out-of-stock {
-        background-color: #ffebee; /* Light red background */
+        background-color: #ffebee; /* Light red */
     }
     tr.row-out-of-stock:hover {
-        background-color: #ffdde0; /* Lighter red on hover */
+        background-color: #ffdde0; 
     }
-    /* Make inputs red too when out of stock */
     tr.row-out-of-stock input,
     tr.row-out-of-stock textarea {
         font-weight: 600;
@@ -175,7 +174,6 @@ alttDOCTYPE html>
         display: table-cell;
     }
     
-    /* === NEW: Hide logo from print === */
     @media print {
         body {
             background-color: #fff;
@@ -191,7 +189,6 @@ alttDOCTYPE html>
         .btn-area, .no-print, .logo-img { /* Hide logo from print */
             display: none !important;
         }
-        /* Make sure out-of-stock rows are NOT red when printing */
         tr.row-out-of-stock {
             background-color: #ffffff;
         }
@@ -291,7 +288,6 @@ alttDOCTYPE html>
         }
     }
     
-    // === NEW FUNCTION HERE ===
     // This function checks the stock level and applies row style
     function checkStockWarning(input) {
         const value = input.value.trim();
@@ -303,10 +299,9 @@ alttDOCTYPE html>
             row.classList.remove('row-out-of-stock');
         }
     }
-    // === END OF NEW FUNCTION ===
 
 
-    // === UPDATED createRow FUNCTION ===
+    // UPDATED createRow FUNCTION
     function createRow(rowData) {
         const tableBody = document.getElementById("checklistTable").getElementsByTagName('tbody')[0];
         const newRow = tableBody.insertRow();
@@ -319,39 +314,32 @@ alttDOCTYPE html>
 
         cellItem.innerHTML = `<input type="text" placeholder="e.g. Bleach" value="${rowData.item || ''}">`;
         
-        // Create 'Current' cell and get reference
         cellCurrent.innerHTML = `<input type="text" placeholder="e.g. 2 bottles" value="${rowData.current || ''}">`;
         const currentInput = cellCurrent.querySelector('input');
         
         cellNeeded.innerHTML = `<input type="text" placeholder="e.g. 3 more" value="${rowData.needed || ''}">`;
         
-        // Create 'Remark' cell and get reference
         cellRemark.innerHTML = `<textarea placeholder="Note...">${rowData.remark || ''}</textarea>`;
         const remarkTextarea = cellRemark.querySelector('textarea');
 
         cellAction.classList.add('no-print');
         cellAction.innerHTML = `<button class="delete-btn" onclick="deleteRow(this)">Delete</button>`;
 
-        // Attach save function to all inputs
         newRow.querySelectorAll('input, textarea').forEach(input => {
             input.addEventListener('input', saveData);
         });
 
-        // Attach the style checker to the remark textarea
         remarkTextarea.addEventListener('input', () => {
             checkRemarkStyle(remarkTextarea);
         });
         
-        // === NEW: Attach stock checker to the 'current' input ===
         currentInput.addEventListener('input', () => {
             checkStockWarning(currentInput);
         });
         
-        // Check styles immediately on page load
         checkRemarkStyle(remarkTextarea);
-        checkStockWarning(currentInput); // Check stock on load
+        checkStockWarning(currentInput); 
     }
-    // === END OF UPDATED FUNCTION ===
 
     function addRow() {
         createRow({}); 
