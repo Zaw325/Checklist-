@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chemical Checklist (Pro Version 2.0)</title>
+<title>Chemical Checklist (Pro Version 2.1)</title>
+
 <style>
     /* Import Google Font 'Inter' */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
@@ -92,6 +93,20 @@
         resize: vertical;
         min-height: 40px;
     }
+    
+    /* === NEW STYLES HERE === */
+    /* Style for *Urgent* (Red) */
+    textarea.remark-urgent {
+        color: #D93025; /* Google Red */
+        font-weight: 600;
+    }
+    /* Style for #Note# (Yellow/Gold) */
+    textarea.remark-note {
+        color: #darkgoldenrod; /* Pure 'yellow' is hard to read */
+        font-weight: 600;
+    }
+    /* === END OF NEW STYLES === */
+
 
     .btn-area {
         text-align: center;
@@ -115,8 +130,6 @@
         background-color: #1b3143;
         transform: translateY(-2px);
     }
-
-    /* PDF button style များကို ဖြုတ်လိုက်ပါပြီ */
 
     button.print-btn {
         background-color: #6c757d;
@@ -188,7 +201,7 @@
 </div>
 
 <script>
-    const STORAGE_KEY = 'chemicalChecklistData'; // Key for localStorage
+    const STORAGE_KEY = 'chemicalChecklistData';
 
     document.addEventListener('DOMContentLoaded', () => {
         loadData();
@@ -239,6 +252,24 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
+    // === NEW FUNCTION HERE ===
+    // This function checks the remark text and applies styles
+    function checkRemarkStyle(textarea) {
+        const value = textarea.value.trim();
+        
+        // First, reset any existing styles
+        textarea.classList.remove('remark-urgent', 'remark-note');
+        
+        if (value.startsWith('*') && value.endsWith('*')) {
+            textarea.classList.add('remark-urgent'); // Add red class
+        } else if (value.startsWith('#') && value.endsWith('#')) {
+            textarea.classList.add('remark-note'); // Add yellow class
+        }
+    }
+    // === END OF NEW FUNCTION ===
+
+
+    // === UPDATED createRow FUNCTION ===
     function createRow(rowData) {
         const tableBody = document.getElementById("checklistTable").getElementsByTagName('tbody')[0];
         const newRow = tableBody.insertRow();
@@ -252,15 +283,28 @@
         cellItem.innerHTML = `<input type="text" placeholder="e.g. Bleach" value="${rowData.item || ''}">`;
         cellCurrent.innerHTML = `<input type="text" placeholder="e.g. 2 bottles" value="${rowData.current || ''}">`;
         cellNeeded.innerHTML = `<input type="text" placeholder="e.g. 3 more" value="${rowData.needed || ''}">`;
-        cellRemark.innerHTML = `<textarea placeholder="Note...">${rowData.remark || ''}</textarea>`;
         
+        // Create remark cell and get a reference to the textarea
+        cellRemark.innerHTML = `<textarea placeholder="Note...">${rowData.remark || ''}</textarea>`;
+        const remarkTextarea = cellRemark.querySelector('textarea');
+
         cellAction.classList.add('no-print');
         cellAction.innerHTML = `<button class="delete-btn" onclick="deleteRow(this)">Delete</button>`;
 
+        // Attach save function to all inputs
         newRow.querySelectorAll('input, textarea').forEach(input => {
             input.addEventListener('input', saveData);
         });
+
+        // Attach the style checker specifically to the remark textarea
+        remarkTextarea.addEventListener('input', () => {
+            checkRemarkStyle(remarkTextarea);
+        });
+        
+        // Check style immediately on page load
+        checkRemarkStyle(remarkTextarea);
     }
+    // === END OF UPDATED FUNCTION ===
 
     function addRow() {
         createRow({}); 
@@ -274,7 +318,7 @@
         }
     }
 
-    // PDF Export Function ကို ဖြုတ်လိုက်ပါပြီ
+    // PDF Export function has been removed
 
 </script>
 
