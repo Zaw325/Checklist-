@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chemical Checklist (Pro Version 2.1)</title>
+<title>Chemical Checklist (Pro Version 2.2)</title>
 
 <style>
     /* Import Google Font 'Inter' */
@@ -24,6 +24,13 @@
         padding: 30px;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    /* === NEW: Logo Style === */
+    .logo-img {
+        display: block;
+        max-width: 150px; /* Set your logo's max width */
+        margin: 0 auto 15px auto; /* Center the logo */
     }
 
     h1 {
@@ -71,6 +78,20 @@
         background-color: #f1f7ff;
     }
 
+    /* === NEW: Low Stock Row Style === */
+    tr.row-out-of-stock {
+        background-color: #ffebee; /* Light red background */
+    }
+    tr.row-out-of-stock:hover {
+        background-color: #ffdde0; /* Lighter red on hover */
+    }
+    /* Make inputs red too when out of stock */
+    tr.row-out-of-stock input,
+    tr.row-out-of-stock textarea {
+        font-weight: 600;
+    }
+
+
     input, textarea {
         width: 100%;
         border: 1px solid transparent;
@@ -94,18 +115,16 @@
         min-height: 40px;
     }
     
-    /* === NEW STYLES HERE === */
     /* Style for *Urgent* (Red) */
     textarea.remark-urgent {
-        color: #D93025; /* Google Red */
+        color: #D93025; 
         font-weight: 600;
     }
     /* Style for #Note# (Yellow/Gold) */
     textarea.remark-note {
-        color: #darkgoldenrod; /* Pure 'yellow' is hard to read */
+        color: #darkgoldenrod; 
         font-weight: 600;
     }
-    /* === END OF NEW STYLES === */
 
 
     .btn-area {
@@ -155,7 +174,8 @@
     .no-print {
         display: table-cell;
     }
-
+    
+    /* === NEW: Hide logo from print === */
     @media print {
         body {
             background-color: #fff;
@@ -168,8 +188,12 @@
             margin: 0;
             max-width: 100%;
         }
-        .btn-area, .no-print {
+        .btn-area, .no-print, .logo-img { /* Hide logo from print */
             display: none !important;
+        }
+        /* Make sure out-of-stock rows are NOT red when printing */
+        tr.row-out-of-stock {
+            background-color: #ffffff;
         }
     }
 </style>
@@ -177,6 +201,9 @@
 <body>
 
 <div class="container">
+    
+    <img src="logo.png" alt="Company Logo" class="logo-img">
+    
     <h1>Chemical Checklist</h1>
     <p id="checklist-date"></p>
 
@@ -252,18 +279,28 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
-    // === NEW FUNCTION HERE ===
     // This function checks the remark text and applies styles
     function checkRemarkStyle(textarea) {
         const value = textarea.value.trim();
-        
-        // First, reset any existing styles
         textarea.classList.remove('remark-urgent', 'remark-note');
         
         if (value.startsWith('*') && value.endsWith('*')) {
-            textarea.classList.add('remark-urgent'); // Add red class
+            textarea.classList.add('remark-urgent');
         } else if (value.startsWith('#') && value.endsWith('#')) {
-            textarea.classList.add('remark-note'); // Add yellow class
+            textarea.classList.add('remark-note');
+        }
+    }
+    
+    // === NEW FUNCTION HERE ===
+    // This function checks the stock level and applies row style
+    function checkStockWarning(input) {
+        const value = input.value.trim();
+        const row = input.parentElement.parentElement; // Get the <tr>
+        
+        if (value === '0') {
+            row.classList.add('row-out-of-stock');
+        } else {
+            row.classList.remove('row-out-of-stock');
         }
     }
     // === END OF NEW FUNCTION ===
@@ -281,10 +318,14 @@
         const cellAction = newRow.insertCell(4);
 
         cellItem.innerHTML = `<input type="text" placeholder="e.g. Bleach" value="${rowData.item || ''}">`;
+        
+        // Create 'Current' cell and get reference
         cellCurrent.innerHTML = `<input type="text" placeholder="e.g. 2 bottles" value="${rowData.current || ''}">`;
+        const currentInput = cellCurrent.querySelector('input');
+        
         cellNeeded.innerHTML = `<input type="text" placeholder="e.g. 3 more" value="${rowData.needed || ''}">`;
         
-        // Create remark cell and get a reference to the textarea
+        // Create 'Remark' cell and get reference
         cellRemark.innerHTML = `<textarea placeholder="Note...">${rowData.remark || ''}</textarea>`;
         const remarkTextarea = cellRemark.querySelector('textarea');
 
@@ -296,13 +337,19 @@
             input.addEventListener('input', saveData);
         });
 
-        // Attach the style checker specifically to the remark textarea
+        // Attach the style checker to the remark textarea
         remarkTextarea.addEventListener('input', () => {
             checkRemarkStyle(remarkTextarea);
         });
         
-        // Check style immediately on page load
+        // === NEW: Attach stock checker to the 'current' input ===
+        currentInput.addEventListener('input', () => {
+            checkStockWarning(currentInput);
+        });
+        
+        // Check styles immediately on page load
         checkRemarkStyle(remarkTextarea);
+        checkStockWarning(currentInput); // Check stock on load
     }
     // === END OF UPDATED FUNCTION ===
 
@@ -317,8 +364,6 @@
             saveData();
         }
     }
-
-    // PDF Export function has been removed
 
 </script>
 
