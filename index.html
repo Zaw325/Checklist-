@@ -1,359 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chemical Checklist (Pro Version 2.2)</title>
-
-<style>
-    /* Import Google Font 'Inter' */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-
-    body {
-        font-family: 'Inter', sans-serif;
-        background-color: #f8f9fa;
-        margin: 0;
-        padding: 20px;
-        color: #333;
-    }
-
-    .container {
-        max-width: 900px;
-        margin: 20px auto;
-        background: #ffffff;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-
-    /* Logo Style */
-    .logo-img {
-        display: block;
-        max-width: 150px; 
-        margin: 0 auto 15px auto; 
-    }
-
-    h1 {
-        text-align: center;
-        color: #2a4d69;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-
-    #checklist-date {
-        text-align: center;
-        font-size: 16px;
-        color: #6c757d;
-        margin-top: 0;
-        margin-bottom: 25px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 25px;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    th, td {
-        padding: 14px;
-        text-align: left;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    th {
-        background-color: #4b86b4;
-        color: white;
-        text-transform: uppercase;
-        font-size: 13px;
-        letter-spacing: 0.5px;
-    }
-
-    tr:last-child td {
-        border-bottom: none;
-    }
-    
-    tr:hover {
-        background-color: #f1f7ff;
-    }
-
-    /* Low Stock Row Style */
-    tr.row-out-of-stock {
-        background-color: #ffebee; /* Light red */
-    }
-    tr.row-out-of-stock:hover {
-        background-color: #ffdde0; 
-    }
-    tr.row-out-of-stock input,
-    tr.row-out-of-stock textarea {
-        font-weight: 600;
-    }
-
-
-    input, textarea {
-        width: 100%;
-        border: 1px solid transparent;
-        background: transparent;
-        font-size: 14px;
-        font-family: 'Inter', sans-serif;
-        padding: 8px;
-        box-sizing: border-box;
-        border-radius: 6px;
-        transition: border-color 0.3s, background-color 0.3s;
-    }
-
-    input:focus, textarea:focus {
-        outline: none;
-        background-color: #eef6ff;
-        border-color: #4b86b4;
-    }
-
-    textarea {
-        resize: vertical;
-        min-height: 40px;
-    }
-    
-    /* Style for *Urgent* (Red) */
-    textarea.remark-urgent {
-        color: #D93025; 
-        font-weight: 600;
-    }
-    /* Style for #Note# (Yellow/Gold) */
-    textarea.remark-note {
-        color: #darkgoldenrod; 
-        font-weight: 600;
-    }
-
-
-    .btn-area {
-        text-align: center;
-        margin-top: 25px;
-    }
-
-    button {
-        background-color: #2a4d69;
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        margin: 5px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: background-color 0.3s, transform 0.2s;
-    }
-
-    button:hover {
-        background-color: #1b3143;
-        transform: translateY(-2px);
-    }
-
-    button.print-btn {
-        background-color: #6c757d;
-    }
-    button.print-btn:hover {
-        background-color: #5a6268;
-    }
-
-    .delete-btn {
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 13px;
-        transition: background-color 0.3s;
-    }
-    .delete-btn:hover {
-        background-color: #c82333;
-    }
-
-    .no-print {
-        display: table-cell;
-    }
-    
-    @media print {
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemical Checklist</title>
+    <style>
+        /* --- General Styles --- */
         body {
-            background-color: #fff;
-            padding: 0;
-            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 20px;
         }
+
         .container {
-            box-shadow: none;
-            border: 1px solid #ccc;
-            margin: 0;
-            max-width: 100%;
-        }
-        .btn-area, .no-print, .logo-img { /* Hide logo from print */
-            display: none !important;
-        }
-        tr.row-out-of-stock {
+            max-width: 900px;
+            margin: 0 auto;
             background-color: #ffffff;
+            /* MODIFICATION: Reduced top padding from 30px to 15px */
+            padding: 15px 30px 30px; 
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #ddd;
         }
-    }
-</style>
+
+        /* --- Headings (Blue Theme) --- */
+        h1 {
+            text-align: center;
+            /* MODIFICATION: Added blue theme color */
+            color: #007bff; 
+            margin-top: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #555;
+            margin: 0;
+            padding: 0;
+        }
+
+        p#checklist-date {
+            text-align: center;
+            font-size: 1.1em;
+            font-style: italic;
+            color: #666;
+            margin-top: -10px;
+        }
+
+        /* --- Table (Blue Theme Header) --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px 15px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        /* MODIFICATION: Added blue theme to table header */
+        th {
+            background-color: #007bff; 
+            color: white;
+            font-size: 1.1em;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .row-out-of-stock {
+            background-color: #fff0f0;
+            font-weight: bold;
+        }
+        .row-out-of-stock td:first-child::before {
+            content: '⚠️ ';
+            color: red;
+        }
+
+        /* --- Buttons --- */
+        .btn-area {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        button.print-btn {
+            background-color: #28a745;
+        }
+        button.print-btn:hover {
+            background-color: #218838;
+        }
+
+        button.delete-btn {
+            background-color: #dc3545;
+            font-size: 14px;
+            padding: 8px 12px;
+        }
+        button.delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        /* --- Print Styles --- */
+        @media print {
+            body {
+                background-color: #fff;
+                padding: 0;
+                margin: 0;
+            }
+            .container {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                margin: 0;
+                max-width: 100%;
+            }
+            .btn-area, .no-print {
+                display: none;
+            }
+            .row-out-of-stock {
+                 background-color: #ffffff;
+            }
+            .row-out-of-stock td:first-child::before {
+                 content: '';
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-    <h2 style="text-align: center;">Mrs.Sparkles</h2>
-    
-    
-    <h1>Chemical Checklist</h1>
-    <p id="checklist-date"></p>
+    <div class="container">
 
-    <table id="checklistTable">
-        <thead>
-            <tr>
-                <th>Items</th>
-                <th>Current</th>
-                <th>Needed</th>
-                <th>Remark</th>
-                <th class="no-print">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            </tbody>
-    </table>
+        <h2>Mrs. Sparkle</h2>
+        
+        <h1>Chemical Checklist</h1>
+        <p id="checklist-date"></p>
 
-    <div class="btn-area">
-        <button onclick="addRow()">+ Add Row</button>
-        <button onclick="window.print()" class="print-btn">🖨️ Print</button>
+        <table id="checklistTable">
+            <thead>
+                <tr>
+                    <th>Items</th>
+                    <th>Current (Stock)</th>
+                    <th>Needed (To Order)</th>
+<th>Remark</th>
+                    <th class="no-print">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+
+        <div class="btn-area no-print">
+            <button onclick="addItem()">Add New Item</button>
+            <button onclick="window.print()" class="print-btn">Print Checklist</button>
+        </div>
+
     </div>
-</div>
 
-<script>
-    const STORAGE_KEY = 'chemicalChecklistData';
+    <script>
+        // --- Set Today's Date ---
+        function setDate() {
+            const dateElement = document.getElementById('checklist-date');
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateElement.textContent = today.toLocaleDateString('en-US', options);
+        }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        loadData();
-        setDate();
-    });
+        // --- Add New Item ---
+        function addItem() {
+            const tableBody = document.getElementById('checklistTable').getElementsByTagName('tbody')[0];
+            const newRow = tableBody.insertRow();
+            newRow.className = "checklist-item";
 
-    function setDate() {
-        const dateEl = document.getElementById('checklist-date');
-        const today = new Date();
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        dateEl.textContent = 'Date: ' + today.toLocaleDateString('en-US', options);
-    }
+            newRow.innerHTML = `
+                <td contenteditable="true">New Item</td>
+                <td contenteditable="true" oninput="checkStock(this)">0</td>
+                <td contenteditable="true">0</td>
+                <td contenteditable="true"></td>
+                <td class="no-print">
+                    <button class="delete-btn" onclick="deleteRow(this)">Delete</button>
+                </td>
+            `;
+            checkStock(newRow.cells[1]);
+        }
 
-    function loadData() {
-        const tableBody = document.getElementById("checklistTable").getElementsByTagName('tbody')[0];
-        const dataString = localStorage.getItem(STORAGE_KEY);
-        
-        tableBody.innerHTML = '';
-
-        if (dataString) {
-            const data = JSON.parse(dataString);
-            if (data.length > 0) {
-                data.forEach(rowData => {
-                    createRow(rowData);
-                });
+        // --- Check Stock Quantity ---
+        function checkStock(cell) {
+            const stockValue = parseInt(cell.textContent, 10);
+            const row = cell.parentElement;
+            
+            if (isNaN(stockValue) || stockValue <= 0) {
+                row.classList.add('row-out-of-stock');
             } else {
-                addRow(); 
+                row.classList.remove('row-out-of-stock');
             }
-        } else {
-            addRow(); 
         }
-    }
 
-    function saveData() {
-        const tableBody = document.getElementById("checklistTable").getElementsByTagName('tbody')[0];
-        const data = [];
-        
-        for (let row of tableBody.rows) {
-            const rowData = {
-                item: row.cells[0].querySelector('input').value,
-                current: row.cells[1].querySelector('input').value,
-                needed: row.cells[2].querySelector('input').value,
-                remark: row.cells[3].querySelector('textarea').value
-            };
-            data.push(rowData);
+        // --- Delete Row ---
+        function deleteRow(btn) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                const row = btn.parentNode.parentNode;
+                row.parentNode.removeChild(row);
+            }
         }
-        
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
 
-    // This function checks the remark text and applies styles
-    function checkRemarkStyle(textarea) {
-        const value = textarea.value.trim();
-        textarea.classList.remove('remark-urgent', 'remark-note');
-        
-        if (value.startsWith('*') && value.endsWith('*')) {
-            textarea.classList.add('remark-urgent');
-        } else if (value.startsWith('#') && value.endsWith('#')) {
-            textarea.classList.add('remark-note');
-        }
-    }
-    
-    // This function checks the stock level and applies row style
-    function checkStockWarning(input) {
-        const value = input.value.trim();
-        const row = input.parentElement.parentElement; // Get the <tr>
-        
-        if (value === '0') {
-            row.classList.add('row-out-of-stock');
-        } else {
-            row.classList.remove('row-out-of-stock');
-        }
-    }
+        // --- Run on Page Load ---
+        document.addEventListener('DOMContentLoaded', function() {
+            setDate();
+            
+            // Example Items
+            const initialItems = [
+                { name: "Glass Cleaner", current: 5, needed: 5, remark: "Windex Brand" },
+                { name: "Floor Detergent", current: 0, needed: 10, remark: "Pine-Sol" },
+                { name: "Microfiber Cloths", current: 50, needed: 0, remark: "" }
+            ];
 
-
-    // UPDATED createRow FUNCTION
-    function createRow(rowData) {
-        const tableBody = document.getElementById("checklistTable").getElementsByTagName('tbody')[0];
-        const newRow = tableBody.insertRow();
-        
-        const cellItem = newRow.insertCell(0);
-        const cellCurrent = newRow.insertCell(1);
-        const cellNeeded = newRow.insertCell(2);
-        const cellRemark = newRow.insertCell(3);
-        const cellAction = newRow.insertCell(4);
-
-        cellItem.innerHTML = `<input type="text" placeholder="e.g. Bleach" value="${rowData.item || ''}">`;
-        
-        cellCurrent.innerHTML = `<input type="text" placeholder="e.g. 2 bottles" value="${rowData.current || ''}">`;
-        const currentInput = cellCurrent.querySelector('input');
-        
-        cellNeeded.innerHTML = `<input type="text" placeholder="e.g. 3 more" value="${rowData.needed || ''}">`;
-        
-        cellRemark.innerHTML = `<textarea placeholder="Note...">${rowData.remark || ''}</textarea>`;
-        const remarkTextarea = cellRemark.querySelector('textarea');
-
-        cellAction.classList.add('no-print');
-        cellAction.innerHTML = `<button class="delete-btn" onclick="deleteRow(this)">Delete</button>`;
-
-        newRow.querySelectorAll('input, textarea').forEach(input => {
-            input.addEventListener('input', saveData);
+            const tableBody = document.getElementById('checklistTable').getElementsByTagName('tbody')[0];
+            initialItems.forEach(item => {
+                const newRow = tableBody.insertRow();
+                newRow.className = "checklist-item";
+                newRow.innerHTML = `
+                    <td contenteditable="true">${item.name}</td>
+                    <td contenteditable="true" oninput="checkStock(this)">${item.current}</td>
+                    <td contenteditable="true">${item.needed}</td>
+                    <td contenteditable="true">${item.remark}</td>
+                    <td class="no-print">
+                        <button class="delete-btn" onclick="deleteRow(this)">Delete</button>
+                    </td>
+                `;
+                checkStock(newRow.cells[1]);
+            });
         });
-
-        remarkTextarea.addEventListener('input', () => {
-            checkRemarkStyle(remarkTextarea);
-        });
-        
-        currentInput.addEventListener('input', () => {
-            checkStockWarning(currentInput);
-        });
-        
-        checkRemarkStyle(remarkTextarea);
-        checkStockWarning(currentInput); 
-    }
-
-    function addRow() {
-        createRow({}); 
-    }
-
-    function deleteRow(button) {
-        const row = button.parentElement.parentElement;
-        if (confirm('Are you sure you want to delete this row?')) {
-            row.parentElement.removeChild(row);
-            saveData();
-        }
-    }
-
-</script>
+    </script>
 
 </body>
 </html>
