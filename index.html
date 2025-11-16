@@ -10,14 +10,14 @@
     <script src="https://unpkg.com/lucide-react@0.395.0/dist/umd/lucide.js"></script>
     
     <script>
-        // Use the Slate color theme to match the user's screenshot
+        // "Fresh Blue" Theme
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'header-blue': '#475569', // slate-600
-                        'button-dark': '#334155', // slate-700
-                        'button-light': '#64748b', // slate-500
+                        'header-blue': '#2563eb', // blue-600
+                        'button-dark': '#1f2937', // gray-800
+                        'button-light': '#3b82f6', // blue-500
                     }
                 }
             }
@@ -28,61 +28,75 @@
         /* Styles for printing */
         @media print {
             body {
-                -webkit-print-color-adjust: exact !important; /* Chrome, Safari */
-                print-color-adjust: exact !important; /* Firefox, other */
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important;
             }
-            .no-print {
-                display: none !important;
-            }
+            .no-print { display: none !important; }
             .print-header {
-                /* Professional Dark Slate Blue Background (slate-700) */
                 background-color: #334155 !important; 
                 color: #ffffff !important;
             }
-            input, textarea {
-                border: 1px solid #ccc !important;
-            }
-            .print-urgent {
-                 color: #e11d48 !important; /* Make sure urgent text is red in print */
-            }
+            input, textarea { border: 1px solid #ccc !important; }
+            .print-urgent { color: #e11d48 !important; }
         }
 
         /* Basic input styling for screen */
         .form-input {
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            padding: 0.5rem 0.75rem;
-            width: 100%;
+            border: 1px solid #d1d5db; border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem; width: 100%;
         }
         .form-input:focus {
-            outline: 2px solid #334155;
-            border-color: transparent;
+            outline: 2px solid #2563eb; border-color: transparent;
+        }
+        
+        /* Shake animation for wrong password */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .animate-shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-    <div class="max-w-xl mx-auto p-4 md:p-8">
+    <!-- 1. Login Modal (IDEA 3) -->
+    <div id="login-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50 transition-opacity duration-300">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm mx-4">
+            <h3 class="text-xl font-bold text-gray-800 text-center mb-4">Mrs. Sparkle</h3>
+            <p class="text-center text-gray-600 mb-6">Please enter password to continue.</p>
+            
+            <input type="password" id="password-input" placeholder="Password..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-shadow text-center">
+            
+            <button id="unlock-button" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold mt-4 hover:bg-blue-700 transition-colors shadow-md">
+                Unlock
+            </button>
+            
+            <p id="error-msg" class="text-red-600 text-sm mt-3 text-center hidden font-medium"></p>
+        </div>
+    </div>
+
+    <!-- 2. Main App Container (Hidden by default) -->
+    <div id="app-container" class="max-w-xl mx-auto p-4 md:p-8 hidden opacity-0 transition-opacity duration-500">
         <div class="bg-white rounded-lg shadow-xl overflow-hidden">
             
-            <!-- Header Section (Back to original, smaller style) -->
+            <!-- Header Section -->
             <div class="p-6 md:p-8 text-center bg-gray-50"> 
-                <!-- 1. Replaced Logo with "Mrs. Sparkle" text (Normal Size) -->
                 <h1 class="text-xl font-semibold text-gray-700">
                     Mrs. Sparkle
                 </h1>
-                <!-- 2. Original font size for "Chemical Checklist" -->
                 <h2 class="text-2xl font-bold text-gray-800 mt-2">
                     Chemical Checklist
                 </h2>
-                <p id="current-date" class="text-sm text-gray-500 mt-1">Date: November 16, 2025</p>
+                <p id="current-date" class="text-sm text-gray-500 mt-1">Date: ...</p>
             </div>
             
             <!-- Table Section -->
             <div class="p-4 md:p-6">
-                <!-- Table Header (Using Slate color) -->
+                <!-- Table Header -->
                 <div class="grid grid-cols-12 gap-2 text-sm font-semibold text-white rounded-t-lg">
-                    <!-- 3. Using bg-header-blue (slate-600) -->
                     <div class="col-span-3 p-3 bg-header-blue print-header rounded-tl-lg">ITEMS</div>
                     <div class="col-span-2 p-3 bg-header-blue print-header text-center">CURRENT</div>
                     <div class="col-span-2 p-3 bg-header-blue print-header text-center">NEEDED</div>
@@ -96,13 +110,24 @@
                 </div>
             </div>
 
-            <!-- Button Section (Using Slate colors) -->
-            <div class="p-6 bg-gray-50 border-t border-gray-100 flex gap-4 no-print">
-                <button id="add-row-btn" class="flex-1 bg-button-dark text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
+            <!-- Button Section -->
+            <div class="p-6 bg-gray-50 border-t border-gray-100 grid grid-cols-2 gap-4 no-print">
+                <!-- Row Management -->
+                <button id="add-row-btn" class="bg-button-dark text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
                     <i data-lucide="plus-circle" class="w-5 h-5"></i>
                     <span>Add Row</span>
                 </button>
-                <button id="print-btn" class="flex-1 bg-button-light text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-500 transition-colors flex items-center justify-center gap-2">
+                <button id="load-template-btn" class="bg-gray-500 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-600 transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="list-restart" class="w-5 h-5"></i>
+                    <span>Load Template</span>
+                </button>
+                
+                <!-- Main Actions -->
+                <button id="clear-all-btn" class="bg-red-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 col-span-1">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    <span>Clear All</span>
+                </button>
+                <button id="print-btn" class="bg-button-light text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 col-span-1">
                     <i data-lucide="printer" class="w-5 h-5"></i>
                     <span>Print</span>
                 </button>
@@ -111,125 +136,241 @@
     </div>
 
     <script>
-        // Data storage
-        let checklistData = [
-            { id: 1, item: 'Bleach', current: '3', needed: '1', remark: 'Note...' },
-            { id: 2, item: 'Sponge', current: '2pcs', needed: 'e.g. 3', remark: '*urgent*' },
-            { id: 3, item: 'Gloves', current: '4pcs', needed: 'e.g. 3', remark: '' },
-        ];
-
-        // DOM Elements
-        const checklistBody = document.getElementById('checklist-body');
-        const addRowBtn = document.getElementById('add-row-btn');
-        const printBtn = document.getElementById('print-btn');
-        const dateElement = document.getElementById('current-date');
-
-        // Set current date
-        dateElement.textContent = `Date: ${new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        })}`;
-
-        // Render all rows
-        function renderRows() {
-            checklistBody.innerHTML = ''; // Clear existing rows
-            if (checklistData.length === 0) {
-                 checklistBody.innerHTML = `<div class="text-center text-gray-500 p-4">No items added. Click "Add Row" to start.</div>`;
-            }
-            checklistData.forEach(row => {
-                const rowElement = createRowElement(row.id, row.item, row.current, row.needed, row.remark);
-                checklistBody.appendChild(rowElement);
-            });
-        }
-
-        // Create a single row element
-        function createRowElement(id, item = '', current = '', needed = '', remark = '') {
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'grid grid-cols-12 gap-2 items-center p-3 border-b border-gray-100 last:border-b-0';
-            rowDiv.dataset.id = id;
-
-            // Check for urgency
-            const isUrgent = remark.includes('*');
-            
-            rowDiv.innerHTML = `
-                <!-- Item -->
-                <div class="col-span-3">
-                    <input type="text" value="${item}" data-field="item" class="form-input text-sm" placeholder="Item Name">
-                </div>
-                <!-- Current -->
-                <div class="col-span-2">
-                    <input type="text" value="${current}" data-field="current" class="form-input text-sm text-center" placeholder="e.g. 3">
-                </div>
-                <!-- Needed -->
-                <div class="col-span-2">
-                    <input type="text" value="${needed}" data-field="needed" class="form-input text-sm text-center" placeholder="e.g. 5">
-                </div>
-                <!-- Remark -->
-                <div class="col-span-3">
-                    <input type="text" value="${remark}" data-field="remark" class="form-input text-sm ${isUrgent ? 'text-red-600 font-bold print-urgent' : ''}" placeholder="Note...">
-                </div>
-                <!-- Actions -->
-                <div class="col-span-2 text-center no-print print-hide">
-                    <button class="delete-btn bg-red-600 text-white text-xs font-semibold py-2 px-3 rounded-lg hover:bg-red-500 transition-colors">
-                        Delete
-                    </button>
-                </div>
-            `;
-
-            return rowDiv;
-        }
-
-        // Handle Add Row
-        addRowBtn.addEventListener('click', () => {
-            const newId = checklistData.length > 0 ? Math.max(...checklistData.map(r => r.id)) + 1 : 1;
-            checklistData.push({ id: newId, item: '', current: '', needed: '', remark: '' });
-            renderRows();
-        });
-
-        // Handle Delete Row and Input Changes
-        checklistBody.addEventListener('click', (e) => {
-            if (e.target.classList.contains('delete-btn')) {
-                const rowElement = e.target.closest('.grid');
-                const rowId = parseInt(rowElement.dataset.id);
-                checklistData = checklistData.filter(row => row.id !== rowId);
-                renderRows();
-            }
-        });
-
-        // Handle data updates and styling
-        checklistBody.addEventListener('input', (e) => {
-            const rowElement = e.target.closest('.grid');
-            const rowId = parseInt(rowElement.dataset.id);
-            const field = e.target.dataset.field;
-            const value = e.target.value;
-            
-            // Update data in memory
-            const rowData = checklistData.find(row => row.id === rowId);
-            if (rowData) {
-                rowData[field] = value;
-            }
-
-            // Special styling for *urgent*
-            if (field === 'remark') {
-                if (value.includes('*')) {
-                    e.target.classList.add('text-red-600', 'font-bold', 'print-urgent');
-                } else {
-                    e.target.classList.remove('text-red-600', 'font-bold', 'print-urgent');
-                }
-            }
-        });
-
-        // Handle Print
-        printBtn.addEventListener('click', () => {
-            window.print();
-        });
-
-        // Initial render
-        renderRows();
+        // --- 1. LOGIN LOGIC (IDEA 3) ---
         
-        // Initialize Lucide Icons
-        lucide.createIcons();
+        const CORRECT_PASSWORD = 'joeclean';
+        const loginOverlay = document.getElementById('login-overlay');
+        const loginBox = loginOverlay.querySelector('div');
+        const appContainer = document.getElementById('app-container');
+        const unlockButton = document.getElementById('unlock-button');
+        const passwordInput = document.getElementById('password-input');
+        const errorMsg = document.getElementById('error-msg');
+
+        const attemptLogin = () => {
+            const pass = passwordInput.value;
+            
+            if (pass === CORRECT_PASSWORD) {
+                // Success
+                loginOverlay.classList.add('opacity-0');
+                setTimeout(() => { loginOverlay.style.display = 'none'; }, 300); 
+
+                appContainer.classList.remove('hidden');
+                setTimeout(() => appContainer.classList.remove('opacity-0'), 50);
+
+                // ** CRITICAL: Initialize the app only AFTER login **
+                App.init();
+
+            } else {
+                // Fail
+                errorMsg.textContent = 'Incorrect Password. Please try again.';
+                errorMsg.classList.remove('hidden');
+                passwordInput.value = '';
+                loginBox.classList.add('animate-shake');
+                setTimeout(() => {
+                    loginBox.classList.remove('animate-shake');
+                }, 500);
+            }
+        };
+        
+        unlockButton.onclick = attemptLogin;
+        passwordInput.onkeyup = (e) => {
+            errorMsg.classList.add('hidden');
+            if (e.key === 'Enter') {
+                attemptLogin();
+            }
+        };
+
+
+        // --- 2. MAIN APP LOGIC ---
+
+        const App = {
+            // Storage key for Auto-Save (IDEA 1)
+            SAVE_KEY: 'chemicalChecklistData_v1',
+            
+            // Default Template (IDEA 2)
+            defaultTemplate: [
+                { id: 1, item: 'Ma Ma lemon', current: '', needed: '', remark: '' },
+                { id: 2, item: 'Pine', current: '', needed: '', remark: '' },
+                { id: 3, item: 'Bleach', current: '', needed: '', remark: '' },
+                { id: 4, item: '202', current: '', needed: '', remark: '' },
+                { id: 5, item: '506', current: '', needed: '', remark: '' },
+                { id: 6, item: 'No.7', current: '', needed: '', remark: '' },
+                { id: 7, item: 'Sticker Remover', current: '', needed: '', remark: '' },
+                { id: 8, item: '703(Steel polish)', current: '', needed: '', remark: '' },
+            ],
+            
+            checklistData: [], // This will hold the current state
+
+            // DOM Elements
+            checklistBody: null,
+            dateElement: null,
+
+            // Initialize the app
+            init() {
+                // Get elements
+                this.checklistBody = document.getElementById('checklist-body');
+                this.dateElement = document.getElementById('current-date');
+                
+                // Set date
+                this.dateElement.textContent = `Date: ${new Date().toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                })}`;
+
+                // Bind button events
+                document.getElementById('add-row-btn').onclick = () => this.handleAddRow();
+                document.getElementById('load-template-btn').onclick = () => this.handleLoadTemplate();
+                document.getElementById('clear-all-btn').onclick = () => this.handleClearAll();
+                document.getElementById('print-btn').onclick = () => this.handlePrint();
+
+                // Bind row events
+                this.checklistBody.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('delete-btn')) {
+                        this.handleDeleteRow(e.target);
+                    }
+                });
+                
+                // Main Auto-Save logic (IDEA 1)
+                this.checklistBody.addEventListener('input', (e) => {
+                    this.updateDataFromDOM();
+                    this.saveData();
+                    // Handle urgent styling
+                    if (e.target.dataset.field === 'remark') {
+                        this.styleUrgentRow(e.target, e.target.value);
+                    }
+                });
+
+                // Load initial data
+                this.loadData();
+                this.renderRows();
+                
+                // Initialize Lucide Icons
+                lucide.createIcons();
+            },
+            
+            // --- Data Functions (Auto-Save) ---
+
+            loadData() {
+                const savedData = localStorage.getItem(this.SAVE_KEY);
+                if (savedData && savedData !== '[]') {
+                    this.checklistData = JSON.parse(savedData);
+                } else {
+                    // If no data, load the default template
+                    this.checklistData = [...this.defaultTemplate.map(item => ({...item, id: Date.now() + Math.random()}))];
+                }
+            },
+
+            saveData() {
+                localStorage.setItem(this.SAVE_KEY, JSON.stringify(this.checklistData));
+            },
+
+            // Reads all inputs and updates the checklistData array
+            updateDataFromDOM() {
+                const newChecklistData = [];
+                const rows = this.checklistBody.querySelectorAll('.grid[data-id]');
+                rows.forEach(rowElement => {
+                    const rowId = parseFloat(rowElement.dataset.id);
+                    const rowData = { id: rowId };
+                    
+                    const inputs = rowElement.querySelectorAll('input[data-field]');
+                    inputs.forEach(input => {
+                        rowData[input.dataset.field] = input.value;
+                    });
+                    newChecklistData.push(rowData);
+                });
+                this.checklistData = newChecklistData;
+            },
+
+            // --- Row Rendering ---
+
+            renderRows() {
+                this.checklistBody.innerHTML = ''; // Clear existing rows
+                if (this.checklistData.length === 0) {
+                     this.checklistBody.innerHTML = `<div class="text-center text-gray-500 p-4">No items. Click "Add Row" or "Load Template".</div>`;
+                }
+                this.checklistData.forEach(row => {
+                    const rowElement = this.createRowElement(row.id, row.item, row.current, row.needed, row.remark);
+                    this.checklistBody.appendChild(rowElement);
+                });
+            },
+
+            createRowElement(id, item, current, needed, remark) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'grid grid-cols-12 gap-2 items-center p-3 border-b border-gray-100 last:border-b-0';
+                rowDiv.dataset.id = id;
+
+                const isUrgent = remark.includes('*');
+                
+                rowDiv.innerHTML = `
+                    <div class="col-span-3">
+                        <input type="text" value="${item}" data-field="item" class="form-input text-sm" placeholder="Item Name">
+                    </div>
+                    <div class="col-span-2">
+                        <input type="text" value="${current}" data-field="current" class="form-input text-sm text-center" placeholder="e.g. 3">
+                    </div>
+                    <div class="col-span-2">
+                        <input type="text" value="${needed}" data-field="needed" class="form-input text-sm text-center" placeholder="e.g. 5">
+                    </div>
+                    <div class="col-span-3">
+                        <input type="text" value="${remark}" data-field="remark" class="form-input text-sm ${isUrgent ? 'text-red-600 font-bold print-urgent' : ''}" placeholder="Note...">
+                    </div>
+                    <div class="col-span-2 text-center no-print print-hide">
+                        <button class="delete-btn bg-red-600 text-white text-xs font-semibold py-2 px-3 rounded-lg hover:bg-red-500 transition-colors">
+                            Delete
+                        </button>
+                    </div>
+                `;
+                return rowDiv;
+            },
+            
+            styleUrgentRow(inputElement, value) {
+                if (value.includes('*')) {
+                    inputElement.classList.add('text-red-600', 'font-bold', 'print-urgent');
+                } else {
+                    inputElement.classList.remove('text-red-600', 'font-bold', 'print-urgent');
+                }
+            },
+
+            // --- Button Handlers ---
+
+            handleAddRow() {
+                const newId = Date.now();
+                this.checklistData.push({ id: newId, item: '', current: '', needed: '', remark: '' });
+                // We don't save yet, just render. User will type and trigger save.
+                this.renderRows();
+            },
+            
+            handleLoadTemplate() {
+                if (confirm('This will clear all current items and load the default chemical list. Are you sure?')) {
+                    this.checklistData = [...this.defaultTemplate.map(item => ({...item, id: Date.now() + Math.random()}))];
+                    this.renderRows();
+                    this.saveData();
+                }
+            },
+            
+            handleClearAll() {
+                if (confirm('This will delete all items from the list. Are you sure?')) {
+                    this.checklistData = [];
+                    this.renderRows();
+                    this.saveData();
+                }
+            },
+
+            handleDeleteRow(deleteButton) {
+                const rowElement = deleteButton.closest('.grid');
+                const rowId = parseFloat(rowElement.dataset.id);
+                this.checklistData = this.checklistData.filter(row => row.id !== rowId);
+                this.renderRows();
+                this.saveData();
+            },
+
+            handlePrint() {
+                window.print();
+            }
+        };
+
+        // Note: App.init() is NOT called here.
+        // It is called by the login script after a successful login.
+
     </script>
 </body>
 </html>
