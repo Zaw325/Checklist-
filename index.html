@@ -1,359 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chemical Checklist (Pro Version 2.2)</title>
-
-<style>
-    /* Import Google Font 'Inter' */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-
-    body {
-        font-family: 'Inter', sans-serif;
-        background-color: #f8f9fa;
-        margin: 0;
-        padding: 20px;
-        color: #333;
-    }
-
-    .container {
-        max-width: 900px;
-        margin: 20px auto;
-        background: #ffffff;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-
-    /* Logo Style */
-    .logo-img {
-        display: block;
-        max-width: 150px; 
-        margin: 0 auto 15px auto; 
-    }
-
-    h1 {
-        text-align: center;
-        color: #2a4d69;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-
-    #checklist-date {
-        text-align: center;
-        font-size: 16px;
-        color: #6c757d;
-        margin-top: 0;
-        margin-bottom: 25px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 25px;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    th, td {
-        padding: 14px;
-        text-align: left;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    th {
-        background-color: #4b86b4;
-        color: white;
-        text-transform: uppercase;
-        font-size: 13px;
-        letter-spacing: 0.5px;
-    }
-
-    tr:last-child td {
-        border-bottom: none;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemical Checklist</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide-react@0.395.0/dist/umd/lucide.js"></script>
     
-    tr:hover {
-        background-color: #f1f7ff;
-    }
-
-    /* Low Stock Row Style */
-    tr.row-out-of-stock {
-        background-color: #ffebee; /* Light red */
-    }
-    tr.row-out-of-stock:hover {
-        background-color: #ffdde0; 
-    }
-    tr.row-out-of-stock input,
-    tr.row-out-of-stock textarea {
-        font-weight: 600;
-    }
-
-
-    input, textarea {
-        width: 100%;
-        border: 1px solid transparent;
-        background: transparent;
-        font-size: 14px;
-        font-family: 'Inter', sans-serif;
-        padding: 8px;
-        box-sizing: border-box;
-        border-radius: 6px;
-        transition: border-color 0.3s, background-color 0.3s;
-    }
-
-    input:focus, textarea:focus {
-        outline: none;
-        background-color: #eef6ff;
-        border-color: #4b86b4;
-    }
-
-    textarea {
-        resize: vertical;
-        min-height: 40px;
-    }
-    
-    /* Style for *Urgent* (Red) */
-    textarea.remark-urgent {
-        color: #D93025; 
-        font-weight: 600;
-    }
-    /* Style for #Note# (Yellow/Gold) */
-    textarea.remark-note {
-        color: #darkgoldenrod; 
-        font-weight: 600;
-    }
-
-
-    .btn-area {
-        text-align: center;
-        margin-top: 25px;
-    }
-
-    button {
-        background-color: #2a4d69;
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        margin: 5px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: background-color 0.3s, transform 0.2s;
-    }
-
-    button:hover {
-        background-color: #1b3143;
-        transform: translateY(-2px);
-    }
-
-    button.print-btn {
-        background-color: #6c757d;
-    }
-    button.print-btn:hover {
-        background-color: #5a6268;
-    }
-
-    .delete-btn {
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 13px;
-        transition: background-color 0.3s;
-    }
-    .delete-btn:hover {
-        background-color: #c82333;
-    }
-
-    .no-print {
-        display: table-cell;
-    }
-    
-    @media print {
-        body {
-            background-color: #fff;
-            padding: 0;
-            margin: 0;
-        }
-        .container {
-            box-shadow: none;
-            border: 1px solid #ccc;
-            margin: 0;
-            max-width: 100%;
-        }
-        .btn-area, .no-print, .logo-img { /* Hide logo from print */
-            display: none !important;
-        }
-        tr.row-out-of-stock {
-            background-color: #ffffff;
-        }
-    }
-</style>
-</head>
-<body>
-
-<div class="container">
-    
-    <img src="https://Zaw325.github.io/Checklist-/logo.png?v=1.1" alt="Company Logo" class="logo-img">
-    
-    <h1>Chemical Checklist</h1>
-    <p id="checklist-date"></p>
-
-    <table id="checklistTable">
-        <thead>
-            <tr>
-                <th>Items</th>
-                <th>Current</th>
-                <th>Needed</th>
-                <th>Remark</th>
-                <th class="no-print">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            </tbody>
-    </table>
-
-    <div class="btn-area">
-        <button onclick="addRow()">+ Add Row</button>
-        <button onclick="window.print()" class="print-btn">🖨️ Print</button>
-    </div>
-</div>
-
-<script>
-    const STORAGE_KEY = 'chemicalChecklistData';
-
-    document.addEventListener('DOMContentLoaded', () => {
-        loadData();
-        setDate();
-    });
-
-    function setDate() {
-        const dateEl = document.getElementById('checklist-date');
-        const today = new Date();
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        dateEl.textContent = 'Date: ' + today.toLocaleDateString('en-US', options);
-    }
-
-    function loadData() {
-        const tableBody = document.getElementById("checklistTable").getElementsByTagName('tbody')[0];
-        const dataString = localStorage.getItem(STORAGE_KEY);
-        
-        tableBody.innerHTML = '';
-
-        if (dataString) {
-            const data = JSON.parse(dataString);
-            if (data.length > 0) {
-                data.forEach(rowData => {
-                    createRow(rowData);
-                });
-            } else {
-                addRow(); 
+    <script>
+        // Use the Slate color theme to match the user's screenshot
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'header-blue': '#475569', // slate-600
+                        'button-dark': '#334155', // slate-700
+                        'button-light': '#64748b', // slate-500
+                    }
+                }
             }
-        } else {
-            addRow(); 
         }
-    }
-
-    function saveData() {
-        const tableBody = document.getElementById("checklistTable").getElementsByTagName('tbody')[0];
-        const data = [];
-        
-        for (let row of tableBody.rows) {
-            const rowData = {
-                item: row.cells[0].querySelector('input').value,
-                current: row.cells[1].querySelector('input').value,
-                needed: row.cells[2].querySelector('input').value,
-                remark: row.cells[3].querySelector('textarea').value
-            };
-            data.push(rowData);
-        }
-        
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
-
-    // This function checks the remark text and applies styles
-    function checkRemarkStyle(textarea) {
-        const value = textarea.value.trim();
-        textarea.classList.remove('remark-urgent', 'remark-note');
-        
-        if (value.startsWith('*') && value.endsWith('*')) {
-            textarea.classList.add('remark-urgent');
-        } else if (value.startsWith('#') && value.endsWith('#')) {
-            textarea.classList.add('remark-note');
-        }
-    }
+    </script>
     
-    // This function checks the stock level and applies row style
-    function checkStockWarning(input) {
-        const value = input.value.trim();
-        const row = input.parentElement.parentElement; // Get the <tr>
-        
-        if (value === '0') {
-            row.classList.add('row-out-of-stock');
-        } else {
-            row.classList.remove('row-out-of-stock');
+    <style>
+        /* Styles for printing */
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact !important; /* Chrome, Safari */
+                print-color-adjust: exact !important; /* Firefox, other */
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-header {
+                /* Professional Dark Slate Blue Background (slate-700) */
+                background-color: #334155 !important; 
+                color: #ffffff !important;
+            }
+            input, textarea {
+                border: 1px solid #ccc !important;
+            }
+            .print-urgent {
+                 color: #e11d48 !important; /* Make sure urgent text is red in print */
+            }
         }
-    }
 
-
-    // UPDATED createRow FUNCTION
-    function createRow(rowData) {
-        const tableBody = document.getElementById("checklistTable").getElementsByTagName('tbody')[0];
-        const newRow = tableBody.insertRow();
-        
-        const cellItem = newRow.insertCell(0);
-        const cellCurrent = newRow.insertCell(1);
-        const cellNeeded = newRow.insertCell(2);
-        const cellRemark = newRow.insertCell(3);
-        const cellAction = newRow.insertCell(4);
-
-        cellItem.innerHTML = `<input type="text" placeholder="e.g. Bleach" value="${rowData.item || ''}">`;
-        
-        cellCurrent.innerHTML = `<input type="text" placeholder="e.g. 2 bottles" value="${rowData.current || ''}">`;
-        const currentInput = cellCurrent.querySelector('input');
-        
-        cellNeeded.innerHTML = `<input type="text" placeholder="e.g. 3 more" value="${rowData.needed || ''}">`;
-        
-        cellRemark.innerHTML = `<textarea placeholder="Note...">${rowData.remark || ''}</textarea>`;
-        const remarkTextarea = cellRemark.querySelector('textarea');
-
-        cellAction.classList.add('no-print');
-        cellAction.innerHTML = `<button class="delete-btn" onclick="deleteRow(this)">Delete</button>`;
-
-        newRow.querySelectorAll('input, textarea').forEach(input => {
-            input.addEventListener('input', saveData);
-        });
-
-        remarkTextarea.addEventListener('input', () => {
-            checkRemarkStyle(remarkTextarea);
-        });
-        
-        currentInput.addEventListener('input', () => {
-            checkStockWarning(currentInput);
-        });
-        
-        checkRemarkStyle(remarkTextarea);
-        checkStockWarning(currentInput); 
-    }
-
-    function addRow() {
-        createRow({}); 
-    }
-
-    function deleteRow(button) {
-        const row = button.parentElement.parentElement;
-        if (confirm('Are you sure you want to delete this row?')) {
-            row.parentElement.removeChild(row);
-            saveData();
+        /* Basic input styling for screen */
+        .form-input {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
         }
-    }
+        .form-input:focus {
+            outline: 2px solid #334155;
+            border-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
 
-</script>
+    <div class="max-w-xl mx-auto p-4 md:p-8">
+        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+            
+            <!-- Header Section (Back to original, smaller style) -->
+            <div class="p-6 md:p-8 text-center bg-gray-50"> 
+                <!-- 1. Replaced Logo with "Mrs. Sparkle" text (Normal Size) -->
+                <h1 class="text-xl font-semibold text-gray-700">
+                    Mrs. Sparkle
+                </h1>
+                <!-- 2. Original font size for "Chemical Checklist" -->
+                <h2 class="text-2xl font-bold text-gray-800 mt-2">
+                    Chemical Checklist
+                </h2>
+                <p id="current-date" class="text-sm text-gray-500 mt-1">Date: November 16, 2025</p>
+            </div>
+            
+            <!-- Table Section -->
+            <div class="p-4 md:p-6">
+                <!-- Table Header (Using Slate color) -->
+                <div class="grid grid-cols-12 gap-2 text-sm font-semibold text-white rounded-t-lg">
+                    <!-- 3. Using bg-header-blue (slate-600) -->
+                    <div class="col-span-3 p-3 bg-header-blue print-header rounded-tl-lg">ITEMS</div>
+                    <div class="col-span-2 p-3 bg-header-blue print-header text-center">CURRENT</div>
+                    <div class="col-span-2 p-3 bg-header-blue print-header text-center">NEEDED</div>
+                    <div class="col-span-3 p-3 bg-header-blue print-header">REMARK</div>
+                    <div class="col-span-2 p-3 bg-header-blue print-header text-center rounded-tr-lg">ACTIONS</div>
+                </div>
 
+                <!-- Table Body -->
+                <div id="checklist-body" class="bg-white border border-gray-200 rounded-b-lg">
+                    <!-- Rows will be dynamically injected here -->
+                </div>
+            </div>
+
+            <!-- Button Section (Using Slate colors) -->
+            <div class="p-6 bg-gray-50 border-t border-gray-100 flex gap-4 no-print">
+                <button id="add-row-btn" class="flex-1 bg-button-dark text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    <span>Add Row</span>
+                </button>
+                <button id="print-btn" class="flex-1 bg-button-light text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-500 transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="printer" class="w-5 h-5"></i>
+                    <span>Print</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let checklistData = [
+            { id: 1, item: 'Bleach', current: '3', needed: '1', remark: 'Note...' },
+            { id: 2, item: 'Sponge', current: '2pcs', needed: 'e.g. 3', remark: '*urgent*' },
+            { id: 3, item: 'Gloves', current: '4pcs', needed: 'e.g. 3', remark: '' },
+        ];
+
+        // DOM Elements
+        const checklistBody = document.getElementById('checklist-body');
+        const addRowBtn = document.getElementById('add-row-btn');
+        const printBtn = document.getElementById('print-btn');
+        const dateElement = document.getElementById('current-date');
+
+        // Set current date
+        dateElement.textContent = `Date: ${new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        })}`;
+
+        // Render all rows
+        function renderRows() {
+            checklistBody.innerHTML = ''; // Clear existing rows
+            if (checklistData.length === 0) {
+                 checklistBody.innerHTML = `<div class="text-center text-gray-500 p-4">No items added. Click "Add Row" to start.</div>`;
+            }
+            checklistData.forEach(row => {
+                const rowElement = createRowElement(row.id, row.item, row.current, row.needed, row.remark);
+                checklistBody.appendChild(rowElement);
+            });
+        }
+
+        // Create a single row element
+        function createRowElement(id, item = '', current = '', needed = '', remark = '') {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'grid grid-cols-12 gap-2 items-center p-3 border-b border-gray-100 last:border-b-0';
+            rowDiv.dataset.id = id;
+
+            // Check for urgency
+            const isUrgent = remark.includes('*');
+            
+            rowDiv.innerHTML = `
+                <!-- Item -->
+                <div class="col-span-3">
+                    <input type="text" value="${item}" data-field="item" class="form-input text-sm" placeholder="Item Name">
+                </div>
+                <!-- Current -->
+                <div class="col-span-2">
+                    <input type="text" value="${current}" data-field="current" class="form-input text-sm text-center" placeholder="e.g. 3">
+                </div>
+                <!-- Needed -->
+                <div class="col-span-2">
+                    <input type="text" value="${needed}" data-field="needed" class="form-input text-sm text-center" placeholder="e.g. 5">
+                </div>
+                <!-- Remark -->
+                <div class="col-span-3">
+                    <input type="text" value="${remark}" data-field="remark" class="form-input text-sm ${isUrgent ? 'text-red-600 font-bold print-urgent' : ''}" placeholder="Note...">
+                </div>
+                <!-- Actions -->
+                <div class="col-span-2 text-center no-print print-hide">
+                    <button class="delete-btn bg-red-600 text-white text-xs font-semibold py-2 px-3 rounded-lg hover:bg-red-500 transition-colors">
+                        Delete
+                    </button>
+                </div>
+            `;
+
+            return rowDiv;
+        }
+
+        // Handle Add Row
+        addRowBtn.addEventListener('click', () => {
+            const newId = checklistData.length > 0 ? Math.max(...checklistData.map(r => r.id)) + 1 : 1;
+            checklistData.push({ id: newId, item: '', current: '', needed: '', remark: '' });
+            renderRows();
+        });
+
+        // Handle Delete Row and Input Changes
+        checklistBody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const rowElement = e.target.closest('.grid');
+                const rowId = parseInt(rowElement.dataset.id);
+                checklistData = checklistData.filter(row => row.id !== rowId);
+                renderRows();
+            }
+        });
+
+        // Handle data updates and styling
+        checklistBody.addEventListener('input', (e) => {
+            const rowElement = e.target.closest('.grid');
+            const rowId = parseInt(rowElement.dataset.id);
+            const field = e.target.dataset.field;
+            const value = e.target.value;
+            
+            // Update data in memory
+            const rowData = checklistData.find(row => row.id === rowId);
+            if (rowData) {
+                rowData[field] = value;
+            }
+
+            // Special styling for *urgent*
+            if (field === 'remark') {
+                if (value.includes('*')) {
+                    e.target.classList.add('text-red-600', 'font-bold', 'print-urgent');
+                } else {
+                    e.target.classList.remove('text-red-600', 'font-bold', 'print-urgent');
+                }
+            }
+        });
+
+        // Handle Print
+        printBtn.addEventListener('click', () => {
+            window.print();
+        });
+
+        // Initial render
+        renderRows();
+        
+        // Initialize Lucide Icons
+        lucide.createIcons();
+    </script>
 </body>
 </html>
+
+
