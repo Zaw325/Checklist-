@@ -31,22 +31,36 @@
                 -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important;
             }
-            .no-print { display: none !important; }
+            .no-print {
+                display: none !important;
+            }
+            
+            /* --- UPDATED --- */
+            /* Changed print header to match the on-screen "Fresh Blue" */
             .print-header {
-                background-color: #334155 !important; 
+                background-color: #2563eb !important; /* blue-600 */
                 color: #ffffff !important;
             }
-            input, textarea { border: 1px solid #ccc !important; }
-            .print-urgent { color: #e11d48 !important; }
+            
+            input, textarea {
+                border: 1px solid #ccc !important;
+            }
+            .print-urgent {
+                 color: #e11d48 !important; 
+            }
         }
 
         /* Basic input styling for screen */
         .form-input {
-            border: 1px solid #d1d5db; border-radius: 0.375rem;
-            padding: 0.5rem 0.75rem; width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
         }
         .form-input:focus {
-            outline: 2px solid #2563eb; border-color: transparent;
+            /* Focus color matches the new blue theme */
+            outline: 2px solid #2563eb; 
+            border-color: transparent;
         }
         
         /* Shake animation for wrong password */
@@ -95,7 +109,7 @@
             
             <!-- Table Section -->
             <div class="p-4 md:p-6">
-                <!-- Table Header -->
+                <!-- Table Header (Using NEW Blue color) -->
                 <div class="grid grid-cols-12 gap-2 text-sm font-semibold text-white rounded-t-lg">
                     <div class="col-span-3 p-3 bg-header-blue print-header rounded-tl-lg">ITEMS</div>
                     <div class="col-span-2 p-3 bg-header-blue print-header text-center">CURRENT</div>
