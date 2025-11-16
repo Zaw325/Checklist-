@@ -17,26 +17,25 @@
             max-width: 900px;
             margin: 0 auto;
             background-color: #ffffff;
-            /* MODIFICATION: Reduced top padding from 30px to 15px */
-            padding: 15px 30px 30px; 
+            padding: 30px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             border: 1px solid #ddd;
         }
 
-        /* --- Headings (Blue Theme) --- */
+        /* --- Headings --- */
         h1 {
             text-align: center;
-            /* MODIFICATION: Added blue theme color */
-            color: #007bff; 
+            color: #C82333; /* Dark Red */
             margin-top: 10px;
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 15px;
         }
         
+        /* --- Company Name (Added) --- */
         h2 {
             text-align: center;
-            color: #555;
+            color: #555; /* Gray */
             margin: 0;
             padding: 0;
         }
@@ -49,7 +48,7 @@
             margin-top: -10px;
         }
 
-        /* --- Table (Blue Theme Header) --- */
+        /* --- Table --- */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -63,25 +62,26 @@
             vertical-align: middle;
         }
 
-        /* MODIFICATION: Added blue theme to table header */
         th {
-            background-color: #007bff; 
+            background-color: #C82333;
             color: white;
             font-size: 1.1em;
         }
 
         tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: #f9f9f9; /* For clearer rows */
         }
         
+        /* Row for out-of-stock items (controlled by JS) */
         .row-out-of-stock {
-            background-color: #fff0f0;
+            background-color: #fff0f0; /* Light Pink */
             font-weight: bold;
         }
         .row-out-of-stock td:first-child::before {
             content: '⚠️ ';
             color: red;
         }
+
 
         /* --- Buttons --- */
         .btn-area {
@@ -106,20 +106,21 @@
         }
         
         button.print-btn {
-            background-color: #28a745;
+            background-color: #28a745; /* Green */
         }
         button.print-btn:hover {
             background-color: #218838;
         }
 
         button.delete-btn {
-            background-color: #dc3545;
+            background-color: #dc3545; /* Red */
             font-size: 14px;
             padding: 8px 12px;
         }
         button.delete-btn:hover {
             background-color: #c82333;
         }
+
 
         /* --- Print Styles --- */
         @media print {
@@ -128,20 +129,25 @@
                 padding: 0;
                 margin: 0;
             }
+
             .container {
                 box-shadow: none;
                 border: 1px solid #ccc;
                 margin: 0;
                 max-width: 100%;
             }
+
+            /* Hide buttons and action columns when printing */
             .btn-area, .no-print {
                 display: none;
             }
+            
+            /* Show out-of-stock rows normally on print */
             .row-out-of-stock {
                  background-color: #ffffff;
             }
             .row-out-of-stock td:first-child::before {
-                 content: '';
+                 content: ''; /* Hide warning icon */
             }
         }
     </style>
@@ -161,7 +167,7 @@
                     <th>Items</th>
                     <th>Current (Stock)</th>
                     <th>Needed (To Order)</th>
-<th>Remark</th>
+                    <th>Remark</th>
                     <th class="no-print">Actions</th>
                 </tr>
             </thead>
@@ -200,7 +206,7 @@
                     <button class="delete-btn" onclick="deleteRow(this)">Delete</button>
                 </td>
             `;
-            checkStock(newRow.cells[1]);
+            checkStock(newRow.cells[1]); // Check stock right after adding
         }
 
         // --- Check Stock Quantity ---
@@ -247,7 +253,7 @@
                         <button class="delete-btn" onclick="deleteRow(this)">Delete</button>
                     </td>
                 `;
-                checkStock(newRow.cells[1]);
+                checkStock(newRow.cells[1]); // Check stock for initial items
             });
         });
     </script>
