@@ -3,21 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chemical Checklist</title>
-    <!-- Tailwind CSS -->
+    <title>Mrs. Sparkle - Chemical Checklist</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide-react@0.395.0/dist/umd/lucide.js"></script>
     
     <script>
-        // "Fresh Blue" Theme
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'header-blue': '#2563eb', // blue-600
-                        'button-dark': '#1f2937', // gray-800
-                        'button-light': '#3b82f6', // blue-500
+                        'brand-blue': '#2563eb',
                     }
                 }
             }
@@ -25,368 +20,314 @@
     </script>
     
     <style>
-        /* Styles for printing */
+        /* Base Styles */
+        body { font-family: system-ui, -apple-system, sans-serif; }
+
+        /* Print Styles - Forces Table Layout on Paper */
         @media print {
-            body {
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important;
-            }
-            .no-print {
-                display: none !important;
+            @page { size: A4; margin: 1cm; }
+            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white; }
+            .no-print { display: none !important; }
+            
+            /* Hide Mobile Elements */
+            .mobile-label { display: none !important; }
+            
+            /* Force Desktop Grid Layout */
+            .responsive-row {
+                display: grid !important;
+                grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+                gap: 0.5rem !important;
+                border: none !important;
+                padding: 0.5rem 0 !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
             }
             
-            /* --- UPDATED --- */
-            /* Changed print header to match the on-screen "Fresh Blue" */
-            .print-header {
-                background-color: #2563eb !important; /* blue-600 */
-                color: #ffffff !important;
-            }
+            /* Headers */
+            .table-header { display: grid !important; background-color: #2563eb !important; color: white !important; }
             
-            input, textarea {
-                border: 1px solid #ccc !important;
-            }
-            .print-urgent {
-                 color: #e11d48 !important; 
-            }
+            /* Input cleanup for print */
+            input { border: none !important; background: transparent !important; padding: 0 !important; }
+            .print-border { border-bottom: 1px solid #ddd !important; }
         }
 
-        /* Basic input styling for screen */
-        .form-input {
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            padding: 0.5rem 0.75rem;
-            width: 100%;
-        }
-        .form-input:focus {
-            /* Focus color matches the new blue theme */
-            outline: 2px solid #2563eb; 
-            border-color: transparent;
-        }
-        
-        /* Shake animation for wrong password */
+        /* Animation for Login Shake */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
-        .animate-shake {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-        }
+        .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen pb-20">
 
-    <!-- 1. Login Modal (IDEA 3) -->
-    <div id="login-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50 transition-opacity duration-300">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm mx-4">
-            <h3 class="text-xl font-bold text-gray-800 text-center mb-4">Mrs. Sparkle</h3>
-            <p class="text-center text-gray-600 mb-6">Please enter password to continue.</p>
+    <div id="login-overlay" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-50 transition-opacity duration-300 px-4">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center">
+            <div class="mb-4 bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-blue-600">
+                <i data-lucide="lock" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Mrs. Sparkle</h3>
+            <p class="text-gray-500 mb-6 text-sm">Chemical Inventory System</p>
             
-            <input type="password" id="password-input" placeholder="Password..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-shadow text-center">
+            <input type="password" id="password-input" placeholder="Enter Password" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-blue text-center text-lg mb-4">
             
-            <button id="unlock-button" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold mt-4 hover:bg-blue-700 transition-colors shadow-md">
-                Unlock
+            <button id="unlock-button" class="w-full bg-brand-blue text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+                Access Checklist
             </button>
-            
-            <p id="error-msg" class="text-red-600 text-sm mt-3 text-center hidden font-medium"></p>
+            <p id="error-msg" class="text-red-500 text-sm mt-3 hidden font-medium"></p>
         </div>
     </div>
 
-    <!-- 2. Main App Container (Hidden by default) -->
-    <div id="app-container" class="max-w-xl mx-auto p-4 md:p-8 hidden opacity-0 transition-opacity duration-500">
-        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+    <div id="app-container" class="max-w-4xl mx-auto p-3 md:p-6 hidden opacity-0 transition-opacity duration-500">
+        
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-4 text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-brand-blue"></div>
+            <h1 class="text-xl font-bold text-gray-800">Mrs. Sparkle</h1>
+            <h2 class="text-lg text-brand-blue font-medium">Chemical Checklist</h2>
+            <p id="current-date" class="text-xs text-gray-400 mt-2 uppercase tracking-wider font-semibold"></p>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
             
-            <!-- Header Section -->
-            <div class="p-6 md:p-8 text-center bg-gray-50"> 
-                <h1 class="text-xl font-semibold text-gray-700">
-                    Mrs. Sparkle
-                </h1>
-                <h2 class="text-2xl font-bold text-gray-800 mt-2">
-                    Chemical Checklist
-                </h2>
-                <p id="current-date" class="text-sm text-gray-500 mt-1">Date: ...</p>
-            </div>
-            
-            <!-- Table Section -->
-            <div class="p-4 md:p-6">
-                <!-- Table Header (Using NEW Blue color) -->
-                <div class="grid grid-cols-12 gap-2 text-sm font-semibold text-white rounded-t-lg">
-                    <div class="col-span-3 p-3 bg-header-blue print-header rounded-tl-lg">ITEMS</div>
-                    <div class="col-span-2 p-3 bg-header-blue print-header text-center">CURRENT</div>
-                    <div class="col-span-2 p-3 bg-header-blue print-header text-center">NEEDED</div>
-                    <div class="col-span-3 p-3 bg-header-blue print-header">REMARK</div>
-                    <div class="col-span-2 p-3 bg-header-blue print-header text-center rounded-tr-lg">ACTIONS</div>
-                </div>
-
-                <!-- Table Body -->
-                <div id="checklist-body" class="bg-white border border-gray-200 rounded-b-lg">
-                    <!-- Rows will be dynamically injected here -->
-                </div>
+            <div class="table-header hidden md:grid grid-cols-12 gap-4 bg-gray-50 p-4 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                <div class="col-span-4">Items</div>
+                <div class="col-span-2 text-center">Current</div>
+                <div class="col-span-2 text-center">Needed</div>
+                <div class="col-span-3">Remark</div>
+                <div class="col-span-1 text-center">Action</div>
             </div>
 
-            <!-- Button Section -->
-            <div class="p-6 bg-gray-50 border-t border-gray-100 grid grid-cols-2 gap-4 no-print">
-                <!-- Row Management -->
-                <button id="add-row-btn" class="bg-button-dark text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
-                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                    <span>Add Row</span>
-                </button>
-                <button id="load-template-btn" class="bg-gray-500 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-gray-600 transition-colors flex items-center justify-center gap-2">
-                    <i data-lucide="list-restart" class="w-5 h-5"></i>
-                    <span>Load Template</span>
-                </button>
-                
-                <!-- Main Actions -->
-                <button id="clear-all-btn" class="bg-red-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 col-span-1">
-                    <i data-lucide="trash-2" class="w-5 h-5"></i>
-                    <span>Clear All</span>
-                </button>
-                <button id="print-btn" class="bg-button-light text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 col-span-1">
-                    <i data-lucide="printer" class="w-5 h-5"></i>
-                    <span>Print</span>
-                </button>
+            <div id="checklist-body" class="p-3 md:p-0 bg-gray-50 md:bg-white">
+                </div>
+        </div>
+
+        <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-3 shadow-lg z-40 no-print">
+            <div class="max-w-4xl mx-auto flex gap-2 justify-between">
+                <div class="flex gap-2 w-full">
+                    <button id="add-row-btn" class="flex-1 bg-gray-800 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-gray-700">
+                        <i data-lucide="plus" class="w-5 h-5"></i> <span class="hidden sm:inline">Add Item</span>
+                    </button>
+                    
+                    <button id="load-template-btn" class="flex-none bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300" title="Load Template">
+                        <i data-lucide="list-restart" class="w-5 h-5"></i>
+                    </button>
+
+                    <div class="w-px bg-gray-300 mx-1"></div>
+
+                    <button id="print-btn" class="flex-none bg-blue-100 text-blue-700 py-3 px-4 rounded-lg font-semibold hover:bg-blue-200" title="Print">
+                        <i data-lucide="printer" class="w-5 h-5"></i>
+                    </button>
+                    
+                    <button id="clear-all-btn" class="flex-none bg-red-100 text-red-600 py-3 px-4 rounded-lg font-semibold hover:bg-red-200" title="Clear All">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
             </div>
         </div>
+        <div class="h-20"></div>
     </div>
 
     <script>
-        // --- 1. LOGIN LOGIC (IDEA 3) ---
-        
-        const CORRECT_PASSWORD = 'joeclean';
-        const loginOverlay = document.getElementById('login-overlay');
-        const loginBox = loginOverlay.querySelector('div');
-        const appContainer = document.getElementById('app-container');
-        const unlockButton = document.getElementById('unlock-button');
-        const passwordInput = document.getElementById('password-input');
-        const errorMsg = document.getElementById('error-msg');
-
-        const attemptLogin = () => {
-            const pass = passwordInput.value;
-            
-            if (pass === CORRECT_PASSWORD) {
-                // Success
-                loginOverlay.classList.add('opacity-0');
-                setTimeout(() => { loginOverlay.style.display = 'none'; }, 300); 
-
-                appContainer.classList.remove('hidden');
-                setTimeout(() => appContainer.classList.remove('opacity-0'), 50);
-
-                // ** CRITICAL: Initialize the app only AFTER login **
-                App.init();
-
-            } else {
-                // Fail
-                errorMsg.textContent = 'Incorrect Password. Please try again.';
-                errorMsg.classList.remove('hidden');
-                passwordInput.value = '';
-                loginBox.classList.add('animate-shake');
-                setTimeout(() => {
-                    loginBox.classList.remove('animate-shake');
-                }, 500);
-            }
-        };
-        
-        unlockButton.onclick = attemptLogin;
-        passwordInput.onkeyup = (e) => {
-            errorMsg.classList.add('hidden');
-            if (e.key === 'Enter') {
-                attemptLogin();
-            }
+        // --- CONFIGURATION ---
+        const CONFIG = {
+            password: 'joeclean',
+            storageKey: 'sparkle_chem_v2'
         };
 
+        // --- TEMPLATE DATA ---
+        const defaultTemplate = [
+            { id: 1, item: 'Ma Ma Lemon', current: '', needed: '', remark: '' },
+            { id: 2, item: 'Pine', current: '', needed: '', remark: '' },
+            { id: 3, item: 'Bleach', current: '', needed: '', remark: '' },
+            { id: 4, item: '202', current: '', needed: '', remark: '' },
+            { id: 5, item: '506', current: '', needed: '', remark: '' },
+            { id: 6, item: 'No.7', current: '', needed: '', remark: '' },
+            { id: 7, item: 'Sticker Remover', current: '', needed: '', remark: '' },
+            { id: 8, item: '703 (Steel Polish)', current: '', needed: '', remark: '' },
+        ];
 
-        // --- 2. MAIN APP LOGIC ---
-
+        // --- APP LOGIC ---
         const App = {
-            // Storage key for Auto-Save (IDEA 1)
-            SAVE_KEY: 'chemicalChecklistData_v1',
-            
-            // Default Template (IDEA 2)
-            defaultTemplate: [
-                { id: 1, item: 'Ma Ma lemon', current: '', needed: '', remark: '' },
-                { id: 2, item: 'Pine', current: '', needed: '', remark: '' },
-                { id: 3, item: 'Bleach', current: '', needed: '', remark: '' },
-                { id: 4, item: '202', current: '', needed: '', remark: '' },
-                { id: 5, item: '506', current: '', needed: '', remark: '' },
-                { id: 6, item: 'No.7', current: '', needed: '', remark: '' },
-                { id: 7, item: 'Sticker Remover', current: '', needed: '', remark: '' },
-                { id: 8, item: '703(Steel polish)', current: '', needed: '', remark: '' },
-            ],
-            
-            checklistData: [], // This will hold the current state
+            data: [],
 
-            // DOM Elements
-            checklistBody: null,
-            dateElement: null,
-
-            // Initialize the app
             init() {
-                // Get elements
-                this.checklistBody = document.getElementById('checklist-body');
-                this.dateElement = document.getElementById('current-date');
-                
-                // Set date
-                this.dateElement.textContent = `Date: ${new Date().toLocaleDateString('en-US', {
-                    year: 'numeric', month: 'long', day: 'numeric'
-                })}`;
-
-                // Bind button events
-                document.getElementById('add-row-btn').onclick = () => this.handleAddRow();
-                document.getElementById('load-template-btn').onclick = () => this.handleLoadTemplate();
-                document.getElementById('clear-all-btn').onclick = () => this.handleClearAll();
-                document.getElementById('print-btn').onclick = () => this.handlePrint();
-
-                // Bind row events
-                this.checklistBody.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('delete-btn')) {
-                        this.handleDeleteRow(e.target);
-                    }
-                });
-                
-                // Main Auto-Save logic (IDEA 1)
-                this.checklistBody.addEventListener('input', (e) => {
-                    this.updateDataFromDOM();
-                    this.saveData();
-                    // Handle urgent styling
-                    if (e.target.dataset.field === 'remark') {
-                        this.styleUrgentRow(e.target, e.target.value);
-                    }
-                });
-
-                // Load initial data
-                this.loadData();
-                this.renderRows();
-                
-                // Initialize Lucide Icons
-                lucide.createIcons();
+                this.bindLogin();
+                // Lucide icons will be refreshed after render
             },
-            
-            // --- Data Functions (Auto-Save) ---
 
-            loadData() {
-                const savedData = localStorage.getItem(this.SAVE_KEY);
-                if (savedData && savedData !== '[]') {
-                    this.checklistData = JSON.parse(savedData);
+            bindLogin() {
+                const btn = document.getElementById('unlock-button');
+                const input = document.getElementById('password-input');
+                
+                const tryLogin = () => {
+                    if (input.value === CONFIG.password) {
+                        document.getElementById('login-overlay').style.display = 'none';
+                        const app = document.getElementById('app-container');
+                        app.classList.remove('hidden');
+                        setTimeout(() => app.classList.remove('opacity-0'), 50);
+                        this.startSystem();
+                    } else {
+                        const err = document.getElementById('error-msg');
+                        err.textContent = "Wrong password!";
+                        err.classList.remove('hidden');
+                        input.value = '';
+                        input.parentElement.classList.add('animate-shake');
+                        setTimeout(() => input.parentElement.classList.remove('animate-shake'), 500);
+                    }
+                };
+
+                btn.onclick = tryLogin;
+                input.addEventListener('keyup', (e) => { if (e.key === 'Enter') tryLogin(); });
+            },
+
+            startSystem() {
+                // Set Date
+                document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-SG', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+
+                // Load Data
+                const saved = localStorage.getItem(CONFIG.storageKey);
+                if (saved) {
+                    this.data = JSON.parse(saved);
                 } else {
-                    // If no data, load the default template
-                    this.checklistData = [...this.defaultTemplate.map(item => ({...item, id: Date.now() + Math.random()}))];
+                    this.data = JSON.parse(JSON.stringify(defaultTemplate));
                 }
+
+                this.render();
+                this.bindActions();
             },
 
-            saveData() {
-                localStorage.setItem(this.SAVE_KEY, JSON.stringify(this.checklistData));
+            bindActions() {
+                document.getElementById('add-row-btn').onclick = () => {
+                    this.data.push({ id: Date.now(), item: '', current: '', needed: '', remark: '' });
+                    this.saveAndRender();
+                };
+
+                document.getElementById('load-template-btn').onclick = () => {
+                    if(confirm('Reset to default template? Current data will be lost.')) {
+                        this.data = JSON.parse(JSON.stringify(defaultTemplate));
+                        // Give new IDs to prevent conflict if we had logic relying on it
+                        this.data.forEach(d => d.id = Date.now() + Math.random());
+                        this.saveAndRender();
+                    }
+                };
+
+                document.getElementById('clear-all-btn').onclick = () => {
+                    if(confirm('Delete ALL items?')) {
+                        this.data = [];
+                        this.saveAndRender();
+                    }
+                };
+
+                document.getElementById('print-btn').onclick = () => window.print();
+
+                // Event Delegation for dynamic inputs
+                const listBody = document.getElementById('checklist-body');
+                
+                listBody.addEventListener('input', (e) => {
+                    if(e.target.dataset.field) {
+                        const id = parseFloat(e.target.closest('.responsive-row').dataset.id);
+                        const field = e.target.dataset.field;
+                        const row = this.data.find(r => r.id === id);
+                        if(row) {
+                            row[field] = e.target.value;
+                            this.save(); // Save silently
+                        }
+                    }
+                });
+
+                listBody.addEventListener('click', (e) => {
+                    if(e.target.closest('.delete-btn')) {
+                        const rowEl = e.target.closest('.responsive-row');
+                        const id = parseFloat(rowEl.dataset.id);
+                        // Add a fade out effect
+                        rowEl.style.opacity = '0';
+                        setTimeout(() => {
+                            this.data = this.data.filter(r => r.id !== id);
+                            this.saveAndRender();
+                        }, 200);
+                    }
+                });
             },
 
-            // Reads all inputs and updates the checklistData array
-            updateDataFromDOM() {
-                const newChecklistData = [];
-                const rows = this.checklistBody.querySelectorAll('.grid[data-id]');
-                rows.forEach(rowElement => {
-                    const rowId = parseFloat(rowElement.dataset.id);
-                    const rowData = { id: rowId };
+            save() {
+                localStorage.setItem(CONFIG.storageKey, JSON.stringify(this.data));
+            },
+
+            saveAndRender() {
+                this.save();
+                this.render();
+            },
+
+            render() {
+                const container = document.getElementById('checklist-body');
+                container.innerHTML = '';
+
+                if (this.data.length === 0) {
+                    container.innerHTML = `<div class="text-center py-10 text-gray-400">List is empty.<br>Tap "Add Item" to start.</div>`;
+                    return;
+                }
+
+                this.data.forEach(row => {
+                    const div = document.createElement('div');
                     
-                    const inputs = rowElement.querySelectorAll('input[data-field]');
-                    inputs.forEach(input => {
-                        rowData[input.dataset.field] = input.value;
-                    });
-                    newChecklistData.push(rowData);
+                    // --- RESPONSIVE CLASSES ---
+                    // Mobile: Card style (white bg, shadow, rounded)
+                    // Desktop: Grid style (flat, border-bottom)
+                    div.className = `responsive-row relative bg-white p-4 mb-3 rounded-xl shadow-sm border border-gray-200 
+                                     md:mb-0 md:shadow-none md:rounded-none md:border-0 md:border-b md:border-gray-100 
+                                     md:grid md:grid-cols-12 md:gap-4 md:items-center md:py-3 transition-all duration-200`;
+                    
+                    div.dataset.id = row.id;
+
+                    div.innerHTML = `
+                        <div class="md:col-span-4 mb-3 md:mb-0">
+                            <label class="text-xs font-bold text-gray-400 uppercase block md:hidden mb-1 mobile-label">Item Name</label>
+                            <input type="text" value="${row.item}" data-field="item" 
+                                class="w-full font-semibold text-gray-800 bg-transparent border-b border-gray-200 focus:border-blue-500 focus:outline-none pb-1 md:border-gray-300 md:border rounded md:px-2 md:py-1.5 md:text-sm" 
+                                placeholder="Type Item...">
+                        </div>
+
+                        <div class="flex gap-3 mb-3 md:mb-0 md:contents">
+                            <div class="flex-1 md:col-span-2">
+                                <label class="text-xs font-bold text-gray-400 uppercase block md:hidden mb-1 mobile-label">Current</label>
+                                <input type="tel" value="${row.current}" data-field="current" 
+                                    class="w-full text-center bg-gray-50 border border-gray-200 rounded-lg py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none md:bg-white md:py-1.5 md:text-sm" 
+                                    placeholder="0">
+                            </div>
+                            <div class="flex-1 md:col-span-2">
+                                <label class="text-xs font-bold text-blue-500 uppercase block md:hidden mb-1 mobile-label">Need</label>
+                                <input type="tel" value="${row.needed}" data-field="needed" 
+                                    class="w-full text-center font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none md:bg-white md:text-gray-800 md:border-gray-300 md:py-1.5 md:text-sm" 
+                                    placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-3 mb-2 md:mb-0">
+                             <label class="text-xs font-bold text-gray-400 uppercase block md:hidden mb-1 mobile-label">Remark</label>
+                            <input type="text" value="${row.remark}" data-field="remark" 
+                                class="w-full text-sm text-gray-600 bg-transparent border-b border-dashed border-gray-300 focus:border-blue-500 focus:outline-none pb-1 md:border-solid md:border md:rounded md:px-2 md:py-1.5" 
+                                placeholder="Add note...">
+                        </div>
+
+                        <div class="absolute top-2 right-2 md:relative md:top-auto md:right-auto md:col-span-1 md:text-center no-print">
+                            <button class="delete-btn text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors">
+                                <i data-lucide="trash-2" class="w-5 h-5 md:w-4 md:h-4"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(div);
                 });
-                this.checklistData = newChecklistData;
-            },
 
-            // --- Row Rendering ---
-
-            renderRows() {
-                this.checklistBody.innerHTML = ''; // Clear existing rows
-                if (this.checklistData.length === 0) {
-                     this.checklistBody.innerHTML = `<div class="text-center text-gray-500 p-4">No items. Click "Add Row" or "Load Template".</div>`;
-                }
-                this.checklistData.forEach(row => {
-                    const rowElement = this.createRowElement(row.id, row.item, row.current, row.needed, row.remark);
-                    this.checklistBody.appendChild(rowElement);
-                });
-            },
-
-            createRowElement(id, item, current, needed, remark) {
-                const rowDiv = document.createElement('div');
-                rowDiv.className = 'grid grid-cols-12 gap-2 items-center p-3 border-b border-gray-100 last:border-b-0';
-                rowDiv.dataset.id = id;
-
-                const isUrgent = remark.includes('*');
-                
-                rowDiv.innerHTML = `
-                    <div class="col-span-3">
-                        <input type="text" value="${item}" data-field="item" class="form-input text-sm" placeholder="Item Name">
-                    </div>
-                    <div class="col-span-2">
-                        <input type="text" value="${current}" data-field="current" class="form-input text-sm text-center" placeholder="e.g. 3">
-                    </div>
-                    <div class="col-span-2">
-                        <input type="text" value="${needed}" data-field="needed" class="form-input text-sm text-center" placeholder="e.g. 5">
-                    </div>
-                    <div class="col-span-3">
-                        <input type="text" value="${remark}" data-field="remark" class="form-input text-sm ${isUrgent ? 'text-red-600 font-bold print-urgent' : ''}" placeholder="Note...">
-                    </div>
-                    <div class="col-span-2 text-center no-print print-hide">
-                        <button class="delete-btn bg-red-600 text-white text-xs font-semibold py-2 px-3 rounded-lg hover:bg-red-500 transition-colors">
-                            Delete
-                        </button>
-                    </div>
-                `;
-                return rowDiv;
-            },
-            
-            styleUrgentRow(inputElement, value) {
-                if (value.includes('*')) {
-                    inputElement.classList.add('text-red-600', 'font-bold', 'print-urgent');
-                } else {
-                    inputElement.classList.remove('text-red-600', 'font-bold', 'print-urgent');
-                }
-            },
-
-            // --- Button Handlers ---
-
-            handleAddRow() {
-                const newId = Date.now();
-                this.checklistData.push({ id: newId, item: '', current: '', needed: '', remark: '' });
-                // We don't save yet, just render. User will type and trigger save.
-                this.renderRows();
-            },
-            
-            handleLoadTemplate() {
-                if (confirm('This will clear all current items and load the default chemical list. Are you sure?')) {
-                    this.checklistData = [...this.defaultTemplate.map(item => ({...item, id: Date.now() + Math.random()}))];
-                    this.renderRows();
-                    this.saveData();
-                }
-            },
-            
-            handleClearAll() {
-                if (confirm('This will delete all items from the list. Are you sure?')) {
-                    this.checklistData = [];
-                    this.renderRows();
-                    this.saveData();
-                }
-            },
-
-            handleDeleteRow(deleteButton) {
-                const rowElement = deleteButton.closest('.grid');
-                const rowId = parseFloat(rowElement.dataset.id);
-                this.checklistData = this.checklistData.filter(row => row.id !== rowId);
-                this.renderRows();
-                this.saveData();
-            },
-
-            handlePrint() {
-                window.print();
+                // Refresh Icons
+                lucide.createIcons();
             }
         };
 
-        // Note: App.init() is NOT called here.
-        // It is called by the login script after a successful login.
-
+        // Start the app
+        App.init();
     </script>
 </body>
 </html>
-
-
