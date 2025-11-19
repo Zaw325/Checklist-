@@ -53,7 +53,9 @@
         .toast-enter { animation: slideUp 0.3s ease-out forwards; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen pb-40"> <div id="login-overlay" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[60] px-4">
+<body class="bg-gray-100 min-h-screen pb-40"> 
+
+    <div id="login-overlay" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[60] px-4">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center">
             <div class="mb-4 bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-blue-600 text-2xl">
                 🔒
@@ -114,7 +116,7 @@
     </div>
 
     <script>
-        const CONFIG = { password: 'joeclean', storageKey: 'sparkle_chem_v4' };
+        const CONFIG = { password: 'joeclean', storageKey: 'sparkle_chem_v5' };
 
         const App = {
             data: [],
@@ -171,7 +173,6 @@
                     this.data.push({ id: Date.now(), item: '', current: '', needed: '', remark: '' });
                     this.render();
                     this.save(false);
-                    // Scroll to bottom
                     window.scrollTo(0, document.body.scrollHeight);
                 };
 
@@ -198,7 +199,6 @@
                         const id = parseFloat(e.target.closest('.row-item').dataset.id);
                         const row = this.data.find(r => r.id === id);
                         if(row) row[e.target.dataset.field] = e.target.value;
-                        // Auto-save silently
                         localStorage.setItem(CONFIG.storageKey, JSON.stringify(this.data));
                     }
                 });
@@ -252,11 +252,11 @@
                         <div class="flex gap-3 mb-3 md:mb-0 md:contents">
                             <div class="flex-1 md:col-span-2">
                                 <label class="mobile-label text-[10px] font-bold text-gray-400 uppercase block md:hidden mb-1">Current</label>
-                                <input type="tel" value="${row.current}" data-field="current" class="w-full text-center bg-gray-50 border border-gray-200 rounded-lg py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 md:bg-white md:py-1 md:text-sm" placeholder="0">
+                                <input type="text" value="${row.current}" data-field="current" class="w-full text-center bg-gray-50 border border-gray-200 rounded-lg py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 md:bg-white md:py-1 md:text-sm" placeholder="0">
                             </div>
                             <div class="flex-1 md:col-span-2">
                                 <label class="mobile-label text-[10px] font-bold text-blue-500 uppercase block md:hidden mb-1">Need</label>
-                                <input type="tel" value="${row.needed}" data-field="needed" class="w-full text-center font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 md:bg-white md:text-gray-800 md:border-gray-200 md:py-1 md:text-sm" placeholder="0">
+                                <input type="text" value="${row.needed}" data-field="needed" class="w-full text-center font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 md:bg-white md:text-gray-800 md:border-gray-200 md:py-1 md:text-sm" placeholder="0">
                             </div>
                         </div>
 
