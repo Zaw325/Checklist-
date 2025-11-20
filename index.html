@@ -3,110 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mrs. Sparkle - Chemical Checklist</title>
+    
+    <title>Mrs. Sparkle - Inventory Report</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        'brand-blue': '#2563eb',
-                    }
+                    colors: { 'brand-blue': '#1e40af' }
                 }
             }
         }
     </script>
     
     <style>
-        /* Base Styles */
-        body { font-family: system-ui, -apple-system, sans-serif; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        /* Safe area for iPhones with notch */
+        .safe-area-pb { padding-bottom: env(safe-area-inset-bottom, 20px); }
 
-        /* Safe Area for Mobile Bottom */
-        .safe-area-pb {
-            padding-bottom: env(safe-area-inset-bottom, 20px);
-        }
-
-        /* Print Styles */
+        /* --- EXECUTIVE PRINT STYLING --- */
         @media print {
             @page { size: A4; margin: 1cm; }
-            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white; }
-            .no-print { display: none !important; }
-            .mobile-label { display: none !important; }
+            body { background: white; color: #1f2937; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            
+            .no-print, .fixed, #login-overlay, .mobile-label, .delete-btn { display: none !important; }
+
+            #app-container {
+                display: block !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            #header-section {
+                border-bottom: 4px solid #1e40af !important;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+            }
+            .header-left h1 { font-size: 24pt; font-weight: 800; color: #1e40af; text-transform: uppercase; margin: 0; line-height: 1; }
+            .header-left h2 { font-size: 10pt; color: #6b7280; text-transform: uppercase; letter-spacing: 2px; margin-top: 5px; font-weight: 600; }
+            .header-right p { font-size: 11pt; font-weight: 600; color: #374151; text-align: right; }
+
+            /* TABLE STRUCTURE */
+            .print-table-header {
+                display: grid !important;
+                grid-template-columns: 35% 15% 15% 35%;
+                background-color: #1e40af !important;
+                color: white !important;
+                padding: 8px 10px;
+                font-weight: bold;
+                font-size: 10pt;
+                text-transform: uppercase;
+                border-radius: 4px 4px 0 0;
+            }
+            
             .responsive-row {
                 display: grid !important;
-                grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
-                gap: 0.5rem !important;
-                border: none !important;
-                padding: 0.5rem 0 !important;
+                grid-template-columns: 35% 15% 15% 35%;
+                border-bottom: 1px solid #e5e7eb;
+                align-items: center;
+                padding: 6px 10px !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
                 page-break-inside: avoid;
             }
-            .table-header { display: grid !important; background-color: #2563eb !important; color: white !important; }
-            input { border: none !important; background: transparent !important; padding: 0 !important; }
-        }
 
-        /* Toast Animation */
-        @keyframes slideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            /* FIX FOR ALIGNMENT */
+            .print-group { display: contents !important; }
+
+            .responsive-row:nth-child(even) { background-color: #f9fafb !important; }
+
+            .responsive-row > div:nth-child(2) input,
+            .responsive-row > div:nth-child(3) input {
+                text-align: center;
+                font-weight: 600;
+            }
+            
+            .responsive-row > div:nth-child(4) input {
+                color: #dc2626 !important;
+                font-weight: bold;
+                font-style: italic;
+            }
+
+            input {
+                border: none !important;
+                background: transparent !important;
+                width: 100%;
+                font-size: 11pt !important;
+                padding: 0 !important;
+                height: auto !important;
+            }
+            input::placeholder { color: transparent !important; }
+
+            .print-footer {
+                display: flex !important;
+                margin-top: 40px;
+                justify-content: space-between;
+                font-size: 10pt;
+                color: #4b5563;
+            }
+            .signature-box {
+                border-top: 1px solid #9ca3af;
+                width: 200px;
+                padding-top: 5px;
+                text-align: center;
+            }
         }
-        .toast-enter { animation: slideUp 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen pb-40"> 
 
     <div id="login-overlay" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[60] px-4">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center">
-            <div class="mb-4 bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-blue-600 text-2xl">
-                🔒
-            </div>
+            <div class="mb-4 bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-blue-600 text-2xl">🔒</div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Mrs. Sparkle</h3>
             <input type="password" id="password-input" placeholder="Enter Password" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-blue text-center text-lg mb-4">
-            <button id="unlock-button" class="w-full bg-brand-blue text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-all">
-                Login
-            </button>
+            <button id="unlock-button" class="w-full bg-brand-blue text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-all">Login</button>
             <p id="error-msg" class="text-red-500 text-sm mt-3 hidden font-medium"></p>
         </div>
     </div>
 
     <div id="app-container" class="max-w-4xl mx-auto p-3 md:p-6 hidden opacity-0 transition-opacity duration-500">
         
-        <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 mb-4 text-center relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-brand-blue"></div>
-            <h1 class="text-xl font-bold text-gray-800">Mrs. Sparkle</h1>
-            <p id="current-date" class="text-xs text-gray-400 mt-1 uppercase tracking-wider font-semibold"></p>
+        <div id="header-section" class="bg-white rounded-xl shadow-sm p-4 mb-4 md:border-0">
+            <div class="header-left text-center md:text-left w-full">
+                <h1 class="text-xl font-bold text-gray-800 md:text-2xl">Mrs. Sparkle</h1>
+                <h2 class="text-sm text-gray-500 tracking-widest font-semibold uppercase">Inventory Status Report</h2>
+            </div>
+            <div class="header-right hidden print:block">
+                <p id="current-date"></p>
+            </div>
+            <p id="mobile-date" class="text-xs text-gray-400 mt-2 text-center w-full md:hidden no-print"></p>
         </div>
         
-        <div class="hidden md:grid grid-cols-12 gap-4 bg-gray-200 p-3 rounded-t-lg text-xs font-bold text-gray-600 uppercase">
-            <div class="col-span-4">Items</div>
-            <div class="col-span-2 text-center">Current</div>
-            <div class="col-span-2 text-center">Needed</div>
-            <div class="col-span-3">Remark</div>
-            <div class="col-span-1 text-center">Del</div>
+        <div class="print-table-header hidden md:grid grid-cols-12 gap-4 bg-gray-200 p-3 rounded-t-lg text-xs font-bold text-gray-600 uppercase">
+            <div class="col-span-4 md:col-span-4">Item Name</div>
+            <div class="col-span-2 md:col-span-2 text-center">Current</div>
+            <div class="col-span-2 md:col-span-2 text-center">Needed</div>
+            <div class="col-span-3 md:col-span-3">Remark</div>
+            <div class="col-span-1 text-center no-print">Del</div>
         </div>
 
-        <div id="checklist-body" class="space-y-3 md:space-y-0 md:bg-white md:shadow-sm md:rounded-b-lg">
-            </div>
+        <div id="checklist-body" class="space-y-3 md:space-y-0 md:bg-white md:shadow-sm md:rounded-b-lg border border-gray-200 md:border-0"></div>
+
+        <div class="print-footer hidden">
+            <div>Generated by Mrs. Sparkle App</div>
+            <div class="signature-box">Checked By (Signature)</div>
+        </div>
     </div>
 
     <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 no-print safe-area-pb">
         <div class="max-w-4xl mx-auto px-2 py-3 flex gap-2 items-center justify-between overflow-x-auto">
-            
-            <button id="add-row-btn" class="flex-grow bg-gray-800 text-white py-3 px-4 rounded-lg font-bold shadow active:scale-95 transition-transform whitespace-nowrap">
-                + Add Item
-            </button>
-
-            <button id="save-btn" class="bg-green-600 text-white py-3 px-4 rounded-lg font-bold shadow active:scale-95 transition-transform whitespace-nowrap">
-                💾 Save
-            </button>
-
-            <button id="print-btn" class="bg-blue-600 text-white py-3 px-4 rounded-lg font-bold shadow active:scale-95 transition-transform whitespace-nowrap">
-                🖨️ Print
-            </button>
-
-            <button id="clear-all-btn" class="bg-red-100 text-red-600 py-3 px-4 rounded-lg font-bold shadow-sm border border-red-200 active:scale-95 transition-transform whitespace-nowrap">
-                🗑️ Clear
-            </button>
+            <button id="add-row-btn" class="flex-grow bg-gray-800 text-white py-3 px-4 rounded-lg font-bold shadow active:scale-95 transition-transform whitespace-nowrap">+ Add Item</button>
+            <button id="save-btn" class="bg-green-600 text-white py-3 px-4 rounded-lg font-bold shadow active:scale-95 transition-transform whitespace-nowrap">💾 Save</button>
+            <button id="print-btn" class="bg-blue-600 text-white py-3 px-4 rounded-lg font-bold shadow active:scale-95 transition-transform whitespace-nowrap">🖨️ Print</button>
+            <button id="clear-all-btn" class="bg-red-100 text-red-600 py-3 px-4 rounded-lg font-bold shadow-sm border border-red-200 active:scale-95 transition-transform whitespace-nowrap">🗑️ Clear</button>
         </div>
     </div>
 
@@ -116,15 +181,10 @@
     </div>
 
     <script>
-        const CONFIG = { password: 'joeclean', storageKey: 'sparkle_chem_v5' };
-
+        const CONFIG = { password: 'joeclean', storageKey: 'sparkle_chem_v8_pdf' }; 
         const App = {
             data: [],
-            
-            init() {
-                this.setupLogin();
-            },
-
+            init() { this.setupLogin(); },
             setupLogin() {
                 const btn = document.getElementById('unlock-button');
                 const input = document.getElementById('password-input');
@@ -143,17 +203,16 @@
                 btn.onclick = attempt;
                 input.onkeyup = (e) => { if(e.key === 'Enter') attempt(); };
             },
-
             loadSystem() {
-                document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-SG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                const dateStr = new Date().toLocaleDateString('en-SG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                document.getElementById('current-date').textContent = "Date: " + dateStr;
+                document.getElementById('mobile-date').textContent = dateStr;
                 
                 const saved = localStorage.getItem(CONFIG.storageKey);
                 this.data = saved ? JSON.parse(saved) : this.getDefaultTemplate();
-                
                 this.render();
                 this.setupButtons();
             },
-
             getDefaultTemplate() {
                 return [
                     { id: 1, item: 'Ma Ma Lemon', current: '', needed: '', remark: '' },
@@ -166,116 +225,83 @@
                     { id: 8, item: '703 (Steel Polish)', current: '', needed: '', remark: '' },
                 ];
             },
-
             setupButtons() {
-                // Add Row
                 document.getElementById('add-row-btn').onclick = () => {
                     this.data.push({ id: Date.now(), item: '', current: '', needed: '', remark: '' });
-                    this.render();
-                    this.save(false);
-                    window.scrollTo(0, document.body.scrollHeight);
+                    this.render(); this.save(false); window.scrollTo(0, document.body.scrollHeight);
                 };
-
-                // Save Manual
-                document.getElementById('save-btn').onclick = () => {
-                    this.save(true);
-                };
-
-                // Print
+                document.getElementById('save-btn').onclick = () => this.save(true);
                 document.getElementById('print-btn').onclick = () => window.print();
-
-                // Clear All
                 document.getElementById('clear-all-btn').onclick = () => {
-                    if(confirm('Are you sure you want to delete everything?')) {
-                        this.data = [];
-                        this.render();
-                        this.save(false);
-                    }
+                    if(confirm('Delete everything?')) { this.data = []; this.render(); this.save(false); }
                 };
-
-                // Input delegation
                 document.getElementById('checklist-body').addEventListener('input', (e) => {
                     if(e.target.dataset.field) {
-                        const id = parseFloat(e.target.closest('.row-item').dataset.id);
+                        const id = parseFloat(e.target.closest('.responsive-row').dataset.id);
                         const row = this.data.find(r => r.id === id);
                         if(row) row[e.target.dataset.field] = e.target.value;
                         localStorage.setItem(CONFIG.storageKey, JSON.stringify(this.data));
                     }
                 });
-
-                // Delete single row
                 document.getElementById('checklist-body').addEventListener('click', (e) => {
                     if(e.target.closest('.delete-btn')) {
-                        const rowEl = e.target.closest('.row-item');
-                        const id = parseFloat(rowEl.dataset.id);
                         if(confirm('Delete this item?')) {
+                            const id = parseFloat(e.target.closest('.responsive-row').dataset.id);
                             this.data = this.data.filter(r => r.id !== id);
-                            this.render();
-                            this.save(false);
+                            this.render(); this.save(false);
                         }
                     }
                 });
             },
-
-            save(showToast = true) {
+            save(showToast) {
                 localStorage.setItem(CONFIG.storageKey, JSON.stringify(this.data));
                 if(showToast) {
                     const toast = document.getElementById('toast');
                     toast.classList.remove('hidden', 'toast-enter');
-                    void toast.offsetWidth; // trigger reflow
+                    void toast.offsetWidth; 
                     toast.classList.add('toast-enter');
                     toast.classList.remove('hidden');
                     setTimeout(() => toast.classList.add('hidden'), 2000);
                 }
             },
-
             render() {
                 const container = document.getElementById('checklist-body');
                 container.innerHTML = '';
-
                 if(this.data.length === 0) {
-                    container.innerHTML = `<div class="text-center py-10 text-gray-400">List is empty. Tap "Add New" to start.</div>`;
-                    return;
+                    container.innerHTML = `<div class="text-center py-10 text-gray-400">List is empty. Tap "Add New" to start.</div>`; return;
                 }
-
                 this.data.forEach(row => {
                     const div = document.createElement('div');
-                    div.className = 'row-item relative bg-white p-4 rounded-xl shadow-sm border border-gray-200 md:grid md:grid-cols-12 md:gap-4 md:items-center md:p-2 md:rounded-none md:border-0 md:border-b md:shadow-none responsive-row';
+                    div.className = 'responsive-row relative bg-white p-4 rounded-xl shadow-sm border-b border-gray-100 md:grid md:grid-cols-12 md:gap-4 md:items-center md:p-2 md:rounded-none md:border-0 md:border-b md:shadow-none';
                     div.dataset.id = row.id;
-
+                    
                     div.innerHTML = `
                         <div class="md:col-span-4 mb-3 md:mb-0">
                             <label class="mobile-label text-[10px] font-bold text-gray-400 uppercase block md:hidden mb-1">Item Name</label>
                             <input type="text" value="${row.item}" data-field="item" class="w-full font-bold text-gray-800 border-b border-gray-200 pb-1 focus:outline-none focus:border-blue-500 md:border md:rounded md:px-2 md:py-1 md:text-sm" placeholder="Item name...">
                         </div>
-
-                        <div class="flex gap-3 mb-3 md:mb-0 md:contents">
+                        <div class="flex gap-3 mb-3 md:mb-0 md:contents print-group">
                             <div class="flex-1 md:col-span-2">
                                 <label class="mobile-label text-[10px] font-bold text-gray-400 uppercase block md:hidden mb-1">Current</label>
                                 <input type="text" value="${row.current}" data-field="current" class="w-full text-center bg-gray-50 border border-gray-200 rounded-lg py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 md:bg-white md:py-1 md:text-sm" placeholder="0">
                             </div>
                             <div class="flex-1 md:col-span-2">
-                                <label class="mobile-label text-[10px] font-bold text-blue-500 uppercase block md:hidden mb-1">Need</label>
+                                <label class="mobile-label text-[10px] font-bold text-blue-500 uppercase block md:hidden mb-1">Needed</label>
                                 <input type="text" value="${row.needed}" data-field="needed" class="w-full text-center font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 md:bg-white md:text-gray-800 md:border-gray-200 md:py-1 md:text-sm" placeholder="0">
                             </div>
                         </div>
-
                         <div class="md:col-span-3 mb-1 md:mb-0">
                             <label class="mobile-label text-[10px] font-bold text-gray-400 uppercase block md:hidden mb-1">Remark</label>
                             <input type="text" value="${row.remark}" data-field="remark" class="w-full text-sm text-gray-600 border-b border-dashed border-gray-300 pb-1 focus:outline-none focus:border-blue-500 md:border-solid md:border md:rounded md:px-2 md:py-1" placeholder="Note...">
                         </div>
-
                         <div class="absolute top-4 right-4 md:relative md:top-auto md:right-auto md:col-span-1 md:text-center no-print">
-                            <button class="delete-btn text-gray-300 hover:text-red-500 p-1 text-xl">
-                                ✕
-                            </button>
+                            <button class="delete-btn text-gray-300 hover:text-red-500 p-1 text-xl">✕</button>
                         </div>
                     `;
                     container.appendChild(div);
                 });
             }
         };
-
         App.init();
     </script>
 </body>
